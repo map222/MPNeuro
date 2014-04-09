@@ -8,12 +8,15 @@ Created on Tue Mar 04 18:02:30 2014
 import neo
 import csv
 
-def loadspiketimes(filename):
+def load_spike_times(filename):
     """
     This should be run from the python IDE in a directory with two files:
     filename.plx        A Plexon file containing clustered units
     filename.csv        A CSV that contains channel number and unit number
-       
+    
+    Returns two variables:
+    Spiketrains         A unit x time array
+    Unitinfo            The stuff from the csv
     """
     unitinfo = []
     
