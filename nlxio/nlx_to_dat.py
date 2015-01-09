@@ -2,6 +2,9 @@
 
 
 """
+@author: Michael Patterson, Palmiter Lab (map222@uw.edu)
+
+
 This script should be run in the directory you want to produce the .dat file in
 Syntax: nlx_to_dat name numChan
 e.g. nlx_to_dat 120220A 16
@@ -13,7 +16,7 @@ import sys
 
 def load_nlx_save_dat(output_name, numChan):
     
-    allcsc, nothing = MPNeuro.nlxio.loadTetrodeNcs('CSC%C.ncs', numChan)
+    allcsc, nothing = MPNeuro.nlxio.loadTetrodeNcs('CSC%C.ncs', numChan, trim_zeros = False)
     allcsc.tofile(output_name + '.dat')
 
 if __name__ == "__main__":

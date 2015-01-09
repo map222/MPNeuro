@@ -18,6 +18,7 @@ def parse_feedtimes_csv(filename):
     feedtimes = []
     watertimes = []
     # go through all ines of csv, and append times to proper place
+    #pdb.set_trace()
     for row in csvreader:
         if row[0] == 'f':
             feedtimes.append(int(row[1]))
@@ -36,6 +37,6 @@ def parse_feedtimes_csv(filename):
             
     return feedtimes_sec, watertimes_sec
     
-    # this function converts a timestamp of for mmss to simply number of seconds
+    # this function converts a timestamp of form mmss to simply number of seconds
 def convert_mmss_to_sec(mmss):
     return numpy.floor(mmss / 100) * 60 + mmss % 100

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Ahtuhor Chris Rodger
+Author Chris Rodger
 """
 
 import numpy as np
@@ -91,13 +91,15 @@ def plot_all_xcorr(spiketrains):
     
     Spiketrains: a Neo object containing spiketrains on each unit
     """
+    num_units = np.size(spiketrains)
+    
     for i, curtrain in enumerate(spiketrains):
         curtrain = curtrain.base.astype(float)
         for j, othertrain in enumerate(spiketrains[i+1:]):
             othertrain = othertrain.base.astype(float)
             correlout, bins = correlogram(curtrain, othertrain)
             # pdb.set_trace()
-            plt.subplot(spiketrains.size, spiketrains.size-1, i+j*spiketrains.size+1)
+            plt.subplot(num_units,  num_units-1, i+j*num_units+1)
             plt.plot(bins[1:], correlout)
            
     plt.show()

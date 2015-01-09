@@ -1,7 +1,12 @@
-"""Loads data stored in the formats used by the Neuralynx recording systems."""
+"""Loads data stored in the formats used by the Neuralynx recording systems.
+@author: Michael Patterson, Palmiter Lab (map222@uw.edu)
+
+Taken from https://github.com/bwillers/nlxio
+
+"""
 
 import numpy as np
-
+import pdb
 
 def loadNcs(filename, should_d2a=True, should_read_time=True, trim_zeros=True,
             return_header=False, auto_invert=True):
