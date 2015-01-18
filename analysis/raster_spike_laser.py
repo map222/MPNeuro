@@ -20,7 +20,7 @@ def raster_spike_laser(spike_times, laser_list, plot = True):
     # spike_times is a single SpikeTrain array
     # laser_list is a simple float list
     rast_start = -0.1
-    rast_end = 0.3
+    rast_end = 0.5
 
     # aligned_spikes is a list of numpy arrays
     aligned_spikes = [np.array(0) for a in enumerate(laser_list)]
