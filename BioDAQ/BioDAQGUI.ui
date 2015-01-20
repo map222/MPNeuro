@@ -6,37 +6,38 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>1071</width>
+    <height>727</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="MatplotlibWidget" name="matplotlibwidget">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>140</y>
-      <width>400</width>
-      <height>300</height>
-     </rect>
-    </property>
-   </widget>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="MatplotlibWidget" name="matplotlibwidget"/>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>1071</width>
      <height>21</height>
     </rect>
    </property>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="dockWidget">
+   <property name="minimumSize">
+    <size>
+     <width>200</width>
+     <height>500</height>
+    </size>
+   </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
    </attribute>
@@ -45,21 +46,21 @@
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>240</y>
-       <width>96</width>
+       <y>210</y>
+       <width>121</width>
        <height>22</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QLabel" name="CageLabel">
+       <widget class="QLabel" name="StartCageLabel">
         <property name="text">
-         <string>Cage #</string>
+         <string>Start Cage</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QSpinBox" name="spinBox">
+       <widget class="QSpinBox" name="StartCageBox">
         <property name="minimum">
          <number>1</number>
         </property>
@@ -70,12 +71,12 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>30</x>
        <y>400</y>
-       <width>140</width>
+       <width>151</width>
        <height>22</height>
       </rect>
      </property>
@@ -88,16 +89,27 @@
        </widget>
       </item>
       <item>
-       <widget class="QTimeEdit" name="timeEdit_2"/>
+       <widget class="QTimeEdit" name="EndTimeEdit">
+        <property name="time">
+         <time>
+          <hour>18</hour>
+          <minute>0</minute>
+          <second>0</second>
+         </time>
+        </property>
+        <property name="displayFormat">
+         <string>h:mm:ss AP</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>30</x>
        <y>370</y>
-       <width>146</width>
+       <width>151</width>
        <height>22</height>
       </rect>
      </property>
@@ -110,16 +122,27 @@
        </widget>
       </item>
       <item>
-       <widget class="QTimeEdit" name="timeEdit"/>
+       <widget class="QTimeEdit" name="StartTimeEdit">
+        <property name="time">
+         <time>
+          <hour>17</hour>
+          <minute>0</minute>
+          <second>0</second>
+         </time>
+        </property>
+        <property name="displayFormat">
+         <string>h:mm:ss AP</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>330</y>
-       <width>135</width>
+       <y>320</y>
+       <width>151</width>
        <height>22</height>
       </rect>
      </property>
@@ -132,16 +155,16 @@
        </widget>
       </item>
       <item>
-       <widget class="QDateEdit" name="dateEdit_2"/>
+       <widget class="QDateEdit" name="EndDateEdit"/>
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>30</x>
        <y>290</y>
-       <width>141</width>
+       <width>151</width>
        <height>22</height>
       </rect>
      </property>
@@ -154,25 +177,101 @@
        </widget>
       </item>
       <item>
-       <widget class="QDateEdit" name="dateEdit"/>
+       <widget class="QDateEdit" name="StartDateEdit"/>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QLabel" name="FileLabel">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>50</y>
+       <width>201</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>File: No file</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="LoadButton">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>70</y>
+       <width>75</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Load .tab file</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="GraphButton">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>480</y>
+       <width>91</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Graph Feeding</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="SaveCSVButton">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>520</y>
+       <width>91</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Save to CSV</string>
+     </property>
+    </widget>
+    <widget class="QWidget" name="layoutWidget_2">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>240</y>
+       <width>121</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_6">
+      <item>
+       <widget class="QLabel" name="EndCageLabel">
+        <property name="text">
+         <string>End Cage</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="EndCageBox">
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>32</number>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
     <zorder>layoutWidget</zorder>
-    <zorder>StartTimeLabel</zorder>
-    <zorder>EndTimeLabel</zorder>
-    <zorder>dateTimeEdit</zorder>
-    <zorder>StartTimeLabel</zorder>
-    <zorder>EndTimeLabel</zorder>
-    <zorder>StartDateLabel</zorder>
-    <zorder>EndDateLabel</zorder>
-    <zorder>timeEdit</zorder>
-    <zorder>timeEdit_2</zorder>
-    <zorder>dateEdit</zorder>
-    <zorder>dateEdit_2</zorder>
-    <zorder>EndDateLabel</zorder>
-    <zorder>StartDateLabel</zorder>
-    <zorder>dateEdit</zorder>
+    <zorder>layoutWidget</zorder>
+    <zorder>layoutWidget</zorder>
+    <zorder>layoutWidget</zorder>
+    <zorder>layoutWidget</zorder>
+    <zorder>FileLabel</zorder>
+    <zorder>LoadButton</zorder>
+    <zorder>GraphButton</zorder>
+    <zorder>SaveCSVButton</zorder>
+    <zorder>layoutWidget_2</zorder>
    </widget>
   </widget>
  </widget>
