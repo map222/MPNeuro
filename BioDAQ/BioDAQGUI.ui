@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1071</width>
+    <width>222</width>
     <height>727</height>
    </rect>
   </property>
@@ -14,18 +14,14 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <widget class="MatplotlibWidget" name="matplotlibwidget"/>
-    </item>
-   </layout>
+   <layout class="QVBoxLayout" name="verticalLayout"/>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1071</width>
+     <width>222</width>
      <height>21</height>
     </rect>
    </property>
@@ -46,7 +42,7 @@
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>210</y>
+       <y>110</y>
        <width>121</width>
        <height>22</height>
       </rect>
@@ -75,7 +71,7 @@
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>400</y>
+       <y>280</y>
        <width>151</width>
        <height>22</height>
       </rect>
@@ -108,7 +104,7 @@
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>370</y>
+       <y>250</y>
        <width>151</width>
        <height>22</height>
       </rect>
@@ -141,7 +137,7 @@
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>320</y>
+       <y>210</y>
        <width>151</width>
        <height>22</height>
       </rect>
@@ -163,7 +159,7 @@
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>290</y>
+       <y>180</y>
        <width>151</width>
        <height>22</height>
       </rect>
@@ -199,7 +195,7 @@
       <rect>
        <x>30</x>
        <y>70</y>
-       <width>75</width>
+       <width>91</width>
        <height>23</height>
       </rect>
      </property>
@@ -237,7 +233,7 @@
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>240</y>
+       <y>140</y>
        <width>121</width>
        <height>22</height>
       </rect>
@@ -262,26 +258,164 @@
       </item>
      </layout>
     </widget>
-    <zorder>layoutWidget</zorder>
-    <zorder>layoutWidget</zorder>
-    <zorder>layoutWidget</zorder>
-    <zorder>layoutWidget</zorder>
-    <zorder>layoutWidget</zorder>
-    <zorder>FileLabel</zorder>
-    <zorder>LoadButton</zorder>
-    <zorder>GraphButton</zorder>
-    <zorder>SaveCSVButton</zorder>
-    <zorder>layoutWidget_2</zorder>
+    <widget class="QWidget" name="">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>350</y>
+       <width>135</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_7">
+      <item>
+       <widget class="QLabel" name="BoutMaxLabel">
+        <property name="text">
+         <string>Bout max (g):</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QDoubleSpinBox" name="BoutMaxBox">
+        <property name="decimals">
+         <number>2</number>
+        </property>
+        <property name="maximum">
+         <double>10.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>1.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>320</y>
+       <width>131</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_8">
+      <item>
+       <widget class="QLabel" name="BoutMinLabel">
+        <property name="text">
+         <string>Bout min (g):</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QDoubleSpinBox" name="BoutMinBox">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="minimum">
+         <double>-1.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>0.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>400</y>
+       <width>131</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_9">
+      <item>
+       <widget class="QLabel" name="MealLabel">
+        <property name="text">
+         <string>Meal IMI (s):</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="MealBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>1000</number>
+        </property>
+        <property name="value">
+         <number>500</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>430</y>
+       <width>131</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_10">
+      <item>
+       <widget class="QLabel" name="BinSizeLabel">
+        <property name="text">
+         <string>Bin Size (min):</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="BinSizeBox">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>300</number>
+        </property>
+        <property name="value">
+         <number>60</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </widget>
   </widget>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>MatplotlibWidget</class>
-   <extends>QWidget</extends>
-   <header>matplotlibwidget</header>
-  </customwidget>
- </customwidgets>
+ <tabstops>
+  <tabstop>LoadButton</tabstop>
+  <tabstop>StartCageBox</tabstop>
+  <tabstop>EndCageBox</tabstop>
+  <tabstop>StartDateEdit</tabstop>
+  <tabstop>EndDateEdit</tabstop>
+  <tabstop>StartTimeEdit</tabstop>
+  <tabstop>EndTimeEdit</tabstop>
+  <tabstop>BoutMinBox</tabstop>
+  <tabstop>BoutMaxBox</tabstop>
+  <tabstop>MealBox</tabstop>
+  <tabstop>BinSizeBox</tabstop>
+  <tabstop>GraphButton</tabstop>
+  <tabstop>SaveCSVButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
