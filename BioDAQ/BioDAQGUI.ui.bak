@@ -189,14 +189,11 @@
      <property name="text">
       <string>File: No file</string>
      </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
     </widget>
     <widget class="QPushButton" name="LoadButton">
      <property name="geometry">
       <rect>
-       <x>60</x>
+       <x>30</x>
        <y>70</y>
        <width>91</width>
        <height>23</height>
@@ -207,9 +204,6 @@
      </property>
     </widget>
     <widget class="QPushButton" name="GraphButton">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
      <property name="geometry">
       <rect>
        <x>40</x>
@@ -264,7 +258,7 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="layoutWidget">
+    <widget class="QWidget" name="">
      <property name="geometry">
       <rect>
        <x>30</x>
@@ -299,7 +293,7 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="layoutWidget">
+    <widget class="QWidget" name="">
      <property name="geometry">
       <rect>
        <x>30</x>
@@ -334,7 +328,7 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="layoutWidget">
+    <widget class="QWidget" name="">
      <property name="geometry">
       <rect>
        <x>30</x>
@@ -369,7 +363,7 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="layoutWidget">
+    <widget class="QWidget" name="">
      <property name="geometry">
       <rect>
        <x>30</x>

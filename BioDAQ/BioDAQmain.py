@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-To do: allow times past midnight
-    allow binning of output - probably can resample data by bin; sum some, average others, then combine after
-        -need to figure out how to get the bin range
+To do:
+    allow times past midnight
+    meal calculations
+    -give user error messages for stupid shit like wrong cage or wrong date
+    
+    -graph in .exe version
 
 Created on Sat Jan 17 17:56:55 2015
 
@@ -21,21 +24,25 @@ from PyQt4 import QtGui
 from BioDAQGUI import Ui_MainWindow
 import pdb
 import pandas as pd
-#import numpy as np
+import numpy as np
 
 class StartQT4(QtGui.QMainWindow):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        
+        # connect ui elements to functions
         self.ui.LoadButton.clicked.connect(self.LoadFile)
         self.ui.GraphButton.clicked.connect(self.GraphData)
         self.ui.SaveCSVButton.clicked.connect(self.SaveCSV)
         self.ui.StartCageBox.valueChanged.connect(self.UpdateGui)
         self.ui.StartDateEdit.dateChanged.connect(self.UpdateGui)
         self.ui.StartTimeEdit.timeChanged.connect(self.UpdateGui)
+        
+        # structures with data in them
         self.raw_data = pd.DataFrame()
-        self.analyzed_data = pd.DataFrame(columns = ['date', 'id_cage', 'n_bouts', 'mean_bout_dur', 'change_grams'])
+        self.analyzed_data = pd.DataFrame(columns = ['datetime', 'id_cage', 'n_bouts', 'mean_bout_dur', 'change_grams'])
 
     # load a .tab file into the program        
     def LoadFile(self):
@@ -56,69 +63,105 @@ class StartQT4(QtGui.QMainWindow):
         
     def GraphData(self):
         # initialize zero point
-        #pdb.set_trace()
-        start_time = self.ui.StartTimeEdit.time().toPyTime()
-        start_date = self.ui.StartDateEdit.date().toPyDate()
-        start_frame = pd.DataFrame(columns = ['datetime', 'bout_dur', 'g_start', 'g_change', 'n_cage'])
-        start_frame.loc[0] = [datetime.datetime.combine(start_date, start_time)] +[0]*4
-        start_frame = start_frame.set_index('datetime')
+        start_frame = self.create_empty_frame()        
         
+        # get data and concatenate the zero point, then turn into cum sum plot
         cur_data = self.selectData()
         cur_data = pd.concat([start_frame, cur_data])
         changesum = cur_data.g_change.cumsum()
-        #end_time = self.ui.EndTimeEdit.time().toPyTime()
-        #bin_num = 10
-        #timerange = 
+        
+        #plot stuff
         sumplot = changesum.plot()
         sumplot.axes.set_ylabel('Cumulative grams eaten')
         
     # select data based on date, time, and cage (values from Gui)
     def selectData(self):
         
-        # select cage
-        cur_cage = self.ui.StartCageBox.value()
-        cur_data = self.raw_data.query('n_cage == cur_cage')
-        
-        # select time
-        start_time = self.ui.StartTimeEdit.time()
-        end_time = self.ui.EndTimeEdit.time()
-        cur_data = cur_data.between_time(start_time.toPyTime(), end_time.toPyTime())
-        
-        # select date:
+        # parameter definitions
         start_date = self.ui.StartDateEdit.date()
         start_date2 = start_date.toPyDate()
-        cur_data = cur_data[start_date2.isoformat()]
-        
+        cur_cage = self.ui.StartCageBox.value()
+        start_time = self.ui.StartTimeEdit.time()
+        end_time = self.ui.EndTimeEdit.time()
+
+        # select date, then cage, then time
+        try:
+            cur_data = self.raw_data[start_date2.isoformat()]
+        except:
+            # if there is no data for a date, tell user, and return empty dataframe
+            QtGui.QMessageBox.about(self, 'No data!', "No data for the selected date: " + str(start_date2) )
+            return pd.DataFrame(columns = ['date', 'id_cage', 'n_bouts', 'mean_bout_dur', 'change_grams'])
+        cur_data = cur_data.query('n_cage == cur_cage')
+        cur_data = cur_data.between_time(start_time.toPyTime(), end_time.toPyTime())
+                
         # filter out bad data
         min_change = self.ui.BoutMinBox.value() # -0.1
         max_change = self.ui.BoutMaxBox.value()
         cur_data = cur_data.query('g_change > min_change & g_change < max_change')
         return cur_data
         
+    def create_empty_frame(self, empty_value = 0, start_bool = True):
+        # whether to create empty frame at start or end
+        if start_bool:
+            empty_time = self.ui.StartTimeEdit.time().toPyTime()
+            empty_date = self.ui.StartDateEdit.date().toPyDate()
+        else:
+            empty_time = self.ui.EndTimeEdit.time().toPyTime()
+            empty_date = self.ui.StartDateEdit.date().toPyDate()
+            # subtract a minute
+            dummy_datetime = datetime.datetime.combine(empty_date, empty_time)
+            new_datetime = dummy_datetime - datetime.timedelta(minutes=1)
+            empty_time = new_datetime.time()
+        empty_frame = pd.DataFrame(columns = ['datetime', 'bout_dur', 'g_start', 'g_change', 'n_cage'])
+        empty_frame.loc[0] = [datetime.datetime.combine(empty_date, empty_time)] +[empty_value]*4
+        empty_frame = empty_frame.set_index('datetime')
+        return empty_frame
+    
+        
     def SaveCSV(self):
         start_date = self.ui.StartDateEdit.date()
         end_date = self.ui.EndDateEdit.date()
+        start_time = self.ui.StartTimeEdit.time().toPyTime()
         
         start_cage = self.ui.StartCageBox.value()
         end_cage = self.ui.EndCageBox.value()
+        bin_size = self.ui.BinSizeBox.value()
         
         # go through all cages and dates, and get data
         for cur_cage in range(start_cage, end_cage+1):
-            
-            # loop through dates
             for date in  pd.date_range( start = start_date.toPyDate(), end = end_date.toPyDate() ):
-                print cur_cage, date
+                #print cur_cage, date
                 # get data for current date
                 cur_data = self.selectData()
-                cur_index = self.analyzed_data.count()[0] # because of i and j looping, need index
-                                
+                
+                # if there is no data for the date, create an empty row
                 if cur_data.empty:
-                    self.analyzed_data.loc[cur_index] = [date, cur_cage ] + [0]*3
+                    empty_frame = pd.DataFrame(columns = self.analyzed_data.columns)
+                    empty_frame.loc[0] = [start_date.toPyDate(), cur_cage, 0, 0, 0]
+                    self.analyzed_data = pd.concat([self.analyzed_data, empty_frame])
                 else:
-                    self.analyzed_data.loc[cur_index] = [date, cur_cage, cur_data.count()[0], cur_data.mean()['bout_dur'],
-                        cur_data.sum()['g_change'] ] # sum the changes
-                        #(cur_data['g_start'][0] - cur_data['g_start'][-1]) ] #subtract end from start
-                        
+                    # create a start and end point for the resampling
+                    start_frame = self.create_empty_frame(np.NaN, True)
+                    end_frame = self.create_empty_frame(np.NaN, False)
+                    cur_data = pd.concat([start_frame, cur_data, end_frame])
+                    
+                    # resample (bin) the data
+                    df_n_bouts =  cur_data['g_change'].resample( str(bin_size) +'Min', how='count', base=start_time.hour*60  )
+                    df_n_bouts.name = 'n_bouts'
+                    df_bout_dur = cur_data['bout_dur'].resample( str(bin_size) +'Min', how='mean', base=start_time.hour*60 )
+                    df_bout_dur.name = 'mean_bout_dur'
+                    df_g_change = cur_data['g_change'].resample( str(bin_size) +'Min', how='sum', base=start_time.hour*60)
+                    df_g_change.name = 'change_grams'
+                    df_cage = df_bout_dur.copy() # copy to keep date info
+                    df_cage[:] = cur_cage
+                    df_cage.name = 'id_cage'
+                    
+                    df_append = pd.concat([df_cage, df_n_bouts, df_bout_dur, df_g_change], axis = 1)
+                    df_append.fillna(0)
+                    df_append.reset_index(level=0, inplace=True)
+
+                    self.analyzed_data = pd.concat([self.analyzed_data, df_append])
+                    
                 # increment the date on the ui
                 cur_date = self.ui.StartDateEdit.date()
                 self.ui.StartDateEdit.setDate(cur_date.addDays(1))
@@ -128,10 +171,18 @@ class StartQT4(QtGui.QMainWindow):
                 
             # after going through all dates for a cage, increment the cage on the gui
             self.ui.StartCageBox.setValue(cur_cage+1)
-            
+        
+        # reset the ui 
         self.ui.StartCageBox.setValue(start_cage)
+        self.ui.EndCageBox.setValue(end_cage)
+        self.ui.EndDateEdit.setDate(end_date)
+                
+        
+        # save the data to the csv
         self.analyzed_data.to_csv(self.expname + '.csv', mode='a') # append so it still writes if file there
         QtGui.QMessageBox.about(self, 'Csv saved!', "Csv saved to: " + self.expname + '.csv')
+        # reset the analyzed data so people don't have to quit
+        self.analyzed_data = pd.DataFrame(columns = ['datetime', 'id_cage', 'n_bouts', 'mean_bout_dur', 'change_grams'])
 
     # when start boxes are changed, update the end box #s to be after start
     def UpdateGui(self):
