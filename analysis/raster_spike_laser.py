@@ -19,8 +19,8 @@ import scipy.stats as stats
 def raster_spike_laser(spike_times, laser_list, plot = True):
     # spike_times is a single SpikeTrain array
     # laser_list is a simple float list
-    rast_start = -0.1
-    rast_end = 0.5
+    rast_start = -1
+    rast_end = 1
 
     # aligned_spikes is a list of numpy arrays
     aligned_spikes = [np.array(0) for a in enumerate(laser_list)]
@@ -28,7 +28,7 @@ def raster_spike_laser(spike_times, laser_list, plot = True):
         
         # cut out spikes for current event, and align to zero
         aligned_spikes[i] = window_spike_times(spike_times[0], cur_event + rast_start, cur_event+rast_end) - cur_event * pq.s
-        
+
     # pdb.set_trace()
     if plot:
         import MPNeuro.plotting as MPplot

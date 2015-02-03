@@ -14,7 +14,8 @@ Created on Sat Jan 17 17:56:55 2015
 # to make .py file from .ui
 c:\pyuic4.bat BioDAQGUI.ui -o BioDAQGUI.py
 
-# to compile the .py file into an .exe, run the following in the directory with the .py file:
+# to compile the .py file into an .exe, run the following in the directory below with the .py file
+(C:\users\palmiteradmin\documents\github\mpneuro\biodaq):
 C:\Users\palmiteradmin\Desktop\WinPython-64bit-2.7.6.3\python-2.7.6.amd64\Scripts\pyinstaller.exe BioDAQmain.py -w
 """
 
@@ -25,6 +26,8 @@ from BioDAQGUI import Ui_MainWindow
 import pdb
 import pandas as pd
 import numpy as np
+import datetime
+import os
 
 class StartQT4(QtGui.QMainWindow):
     def __init__(self, parent=None):
@@ -132,6 +135,7 @@ class StartQT4(QtGui.QMainWindow):
             for date in  pd.date_range( start = start_date.toPyDate(), end = end_date.toPyDate() ):
                 #print cur_cage, date
                 # get data for current date
+                #pdb.set_trace()
                 cur_data = self.selectData()
                 
                 # if there is no data for the date, create an empty row
@@ -143,14 +147,15 @@ class StartQT4(QtGui.QMainWindow):
                     # create a start and end point for the resampling
                     start_frame = self.create_empty_frame(np.NaN, True)
                     end_frame = self.create_empty_frame(np.NaN, False)
+                    # increment the date on the ui
                     cur_data = pd.concat([start_frame, cur_data, end_frame])
-                    
+                    base_time = start_time.hour*60 + start_time.minute
                     # resample (bin) the data
-                    df_n_bouts =  cur_data['g_change'].resample( str(bin_size) +'Min', how='count', base=start_time.hour*60  )
+                    df_n_bouts =  cur_data['g_change'].resample( str(bin_size) +'Min', how='count', base= base_time )
                     df_n_bouts.name = 'n_bouts'
-                    df_bout_dur = cur_data['bout_dur'].resample( str(bin_size) +'Min', how='mean', base=start_time.hour*60 )
+                    df_bout_dur = cur_data['bout_dur'].resample( str(bin_size) +'Min', how='mean', base= base_time )
                     df_bout_dur.name = 'mean_bout_dur'
-                    df_g_change = cur_data['g_change'].resample( str(bin_size) +'Min', how='sum', base=start_time.hour*60)
+                    df_g_change = cur_data['g_change'].resample( str(bin_size) +'Min', how='sum', base= base_time)
                     df_g_change.name = 'change_grams'
                     df_cage = df_bout_dur.copy() # copy to keep date info
                     df_cage[:] = cur_cage
@@ -162,7 +167,7 @@ class StartQT4(QtGui.QMainWindow):
 
                     self.analyzed_data = pd.concat([self.analyzed_data, df_append])
                     
-                # increment the date on the ui
+                
                 cur_date = self.ui.StartDateEdit.date()
                 self.ui.StartDateEdit.setDate(cur_date.addDays(1))
                 
@@ -177,7 +182,7 @@ class StartQT4(QtGui.QMainWindow):
         self.ui.EndCageBox.setValue(end_cage)
         self.ui.EndDateEdit.setDate(end_date)
                 
-        
+       
         # save the data to the csv
         self.analyzed_data.to_csv(self.expname + '.csv', mode='a') # append so it still writes if file there
         QtGui.QMessageBox.about(self, 'Csv saved!', "Csv saved to: " + self.expname + '.csv')

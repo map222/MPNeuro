@@ -74,9 +74,11 @@ MP140821A_feedtimes, MP140821A_watertimes = tp.parse_feedtimes_csv('E:\\MP_Data\
 MP140924A_feedtimes, MP140924A_watertimes = tp.parse_feedtimes_csv('E:\\MP_Data\\140924A\\140924A feeding.csv')
 MP141010A_feedtimes, MP141010A_watertimes = tp.parse_feedtimes_csv('E:\\MP_Data\\141010A\\141010A feeding.csv')
 MP141016B_feedtimes, MP141016B_watertimes = tp.parse_feedtimes_csv('E:\\MP_Data\\141016B\\141016B feeding.csv')
+MP150127B_feedtimes, MP150127B_watertimes = tp.parse_feedtimes_csv('E:\\MP_Data\\150127B\\150127B feeding.csv')
+MP150129A_feedtimes, MP150129A_watertimes = tp.parse_feedtimes_csv('E:\\MP_Data\\150129A\\150129A feeding.csv')
 
-feedtimes = np.array(MP140819B_feedtimes) / 60
-watertimes = np.array(MP140819B_watertimes) / 60
+feedtimes = np.array(MP150127B_feedtimes) / 60
+watertimes = np.array(MP150127B_watertimes) / 60
 
 for j in feedtimes:
     plt.plot(j, [max_Hz-6, max_Hz-6], color =  'k', linewidth = lw)
