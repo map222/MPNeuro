@@ -19,7 +19,7 @@ def hist_event_firingrate(spike_times, event_list, plot = True):
     
 
     binwidth = 0.002
-    bins = np.arange(-0.2, 0.6+binwidth, binwidth) # bins used for histogram
+    bins = np.arange(-0.2, 0.4+binwidth, binwidth) # bins used for histogram
     
     num_units = np.shape(spike_times)[0] 
     

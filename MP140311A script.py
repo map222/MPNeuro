@@ -40,7 +40,7 @@ for tick in ax.xaxis.get_major_ticks():
     tick.label.set_fontsize(14)
 for tick in ax.yaxis.get_major_ticks():
     tick.label.set_fontsize(14)
-plt.xlim(0, 50)
+plt.xlim(15, 90)
 
 # hardcoded feed and water times; I switched to csv parsing later
 MP140311A_feedtimes = feedtimes = [[688, 840], [878, 907], [995, 1060], [1080, 1100], [1210, 1350],
@@ -76,9 +76,10 @@ MP141010A_feedtimes, MP141010A_watertimes = tp.parse_feedtimes_csv('E:\\MP_Data\
 MP141016B_feedtimes, MP141016B_watertimes = tp.parse_feedtimes_csv('E:\\MP_Data\\141016B\\141016B feeding.csv')
 MP150127B_feedtimes, MP150127B_watertimes = tp.parse_feedtimes_csv('E:\\MP_Data\\150127B\\150127B feeding.csv')
 MP150129A_feedtimes, MP150129A_watertimes = tp.parse_feedtimes_csv('E:\\MP_Data\\150129A\\150129A feeding.csv')
+MP150206A_feedtimes, MP150206A_watertimes = tp.parse_feedtimes_csv('E:\\MP_Data\\150206A\\150206A feeding.csv')
 
-feedtimes = np.array(MP150127B_feedtimes) / 60
-watertimes = np.array(MP150127B_watertimes) / 60
+feedtimes = np.array(MP150206A_feedtimes) / 60
+watertimes = np.array(MP150206A_watertimes) / 60
 
 for j in feedtimes:
     plt.plot(j, [max_Hz-6, max_Hz-6], color =  'k', linewidth = lw)

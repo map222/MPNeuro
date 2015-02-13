@@ -16,7 +16,7 @@ import sys
 
 def load_nlx_save_dat(output_name, numChan):
     
-    allcsc, nothing = MPNeuro.nlxio.loadTetrodeNcs('CSC%C.ncs', numChan, trim_zeros = False)
+    allcsc, nothing = MPNeuro.nlxio.loadTetrodeNcs('CSC%C.ncs', nCh = numChan, trim_zeros = False)
     allcsc.tofile(output_name + '.dat')
 
 if __name__ == "__main__":

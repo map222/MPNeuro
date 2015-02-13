@@ -24,6 +24,7 @@ def plot_hist_firingrate(bins, firingrates, firing_sem = []):
     
     # plot all the firing rates
     for i, rows in enumerate(firingrates):
+        #rows = np.convolve(rows, [0.25, 0.5, 0.25], mode = 'same')    
         ax.errorbar(bins2, rows / rate_conversion, yerr = firing_sem[i,:] / rate_conversion,
             label = str(i), linewidth = math.ceil((i+4 )/ len(colorj)), color = colorj[i%len(colorj)])
 
