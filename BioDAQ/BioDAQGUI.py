@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'BioDAQGUI.ui'
 #
-# Created: Thu Jan 22 13:09:35 2015
+# Created: Fri Mar 06 10:02:11 2015
 #      by: PyQt4 UI code generator 4.9.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -137,7 +137,7 @@ class Ui_MainWindow(object):
         self.EndCageBox.setObjectName(_fromUtf8("EndCageBox"))
         self.horizontalLayout_6.addWidget(self.EndCageBox)
         self.layoutWidget5 = QtGui.QWidget(self.dockWidgetContents)
-        self.layoutWidget5.setGeometry(QtCore.QRect(30, 350, 135, 22))
+        self.layoutWidget5.setGeometry(QtCore.QRect(30, 350, 131, 22))
         self.layoutWidget5.setObjectName(_fromUtf8("layoutWidget5"))
         self.horizontalLayout_7 = QtGui.QHBoxLayout(self.layoutWidget5)
         self.horizontalLayout_7.setMargin(0)
@@ -163,9 +163,10 @@ class Ui_MainWindow(object):
         self.horizontalLayout_8.addWidget(self.BoutMinLabel)
         self.BoutMinBox = QtGui.QDoubleSpinBox(self.layoutWidget6)
         self.BoutMinBox.setEnabled(True)
-        self.BoutMinBox.setMinimum(-1.0)
-        self.BoutMinBox.setMaximum(0.0)
-        self.BoutMinBox.setSingleStep(0.1)
+        self.BoutMinBox.setMinimum(0.0)
+        self.BoutMinBox.setMaximum(1.0)
+        self.BoutMinBox.setSingleStep(0.01)
+        self.BoutMinBox.setProperty("value", 0.01)
         self.BoutMinBox.setObjectName(_fromUtf8("BoutMinBox"))
         self.horizontalLayout_8.addWidget(self.BoutMinBox)
         self.layoutWidget7 = QtGui.QWidget(self.dockWidgetContents)
@@ -178,10 +179,10 @@ class Ui_MainWindow(object):
         self.MealLabel.setObjectName(_fromUtf8("MealLabel"))
         self.horizontalLayout_9.addWidget(self.MealLabel)
         self.MealBox = QtGui.QSpinBox(self.layoutWidget7)
-        self.MealBox.setEnabled(False)
+        self.MealBox.setEnabled(True)
         self.MealBox.setMinimum(1)
         self.MealBox.setMaximum(1000)
-        self.MealBox.setProperty("value", 500)
+        self.MealBox.setProperty("value", 300)
         self.MealBox.setObjectName(_fromUtf8("MealBox"))
         self.horizontalLayout_9.addWidget(self.MealBox)
         self.layoutWidget8 = QtGui.QWidget(self.dockWidgetContents)

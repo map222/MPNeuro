@@ -23,8 +23,6 @@ def main(spike_times, feed_times):
     num_units = np.size(spike_times)
     avg_feed_rate = np.zeros(num_units)
     avg_nonfeed_rate = np.zeros(num_units)
-
-#    pdb.set_trace()
     
     for i, cur_spikes in enumerate(spike_times):
         avg_feed_rate[i] = calc_avg_rate_epoch(cur_spikes, feed_times)
