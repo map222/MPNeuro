@@ -73,6 +73,9 @@ class StartQT4(QtGui.QMainWindow):
         # get data and concatenate the zero point, then turn into cum sum plot
         cur_data = self.selectData()
         cur_data = pd.concat([start_frame, cur_data])
+        if len(cur_data) == 0:
+            QtGui.QMessageBox.about(self, 'No data!', 'Cage does not exist for given date')
+            return
         changesum = cur_data.g_change.cumsum()
         
         #plot stuff
@@ -87,7 +90,6 @@ class StartQT4(QtGui.QMainWindow):
         start_date2 = start_date.toPyDate()
         start_time = self.ui.StartTimeEdit.time()
         end_time = self.ui.EndTimeEdit.time()
-       # pdb.set_trace()
 
         # select date, then cage, then time
         try:
@@ -163,14 +165,15 @@ class StartQT4(QtGui.QMainWindow):
                     df_n_bouts.name = 'n_bouts'
                     df_bout_dur = cur_data['bout_dur'].resample( str(bin_size) +'Min', how='mean', base= base_time )
                     df_bout_dur.name = 'mean_bout_dur'
-                    df_g_change = cur_data['g_change'].resample( str(bin_size) +'Min', how='sum', base= base_time)
+                    df_g_change = cur_data['g_change'].resample( str(bin_size) +'Min', how='sum',  base= base_time)
                     df_g_change.name = 'bout_change_g'
                     df_cage = df_bout_dur.copy() # copy to keep date info
                     df_cage[:] = cur_cage
                     df_cage.name = 'id_cage'
                     
                     # meals section; start by initiating values
-                    meal_isi = datetime.timedelta(0, self.ui.MealBox.value())
+                    meal_isi = datetime.timedelta(0, self.ui.MealISIBox.value())
+                    min_meal_g = self.ui.MealMinBox.value()
                     bout_starts = meal_data.index.tolist()
                     durs = meal_data['bout_dur'].values
                     bout_ends = []
@@ -180,7 +183,6 @@ class StartQT4(QtGui.QMainWindow):
                         bout_ends.append( row + datetime.timedelta( 0, int(durs[i] )))
 
                     prev_meal_start_index = 0
-                    num_meals = 1
                     meal_dur = []
                     meal_grams = []
 
@@ -188,20 +190,29 @@ class StartQT4(QtGui.QMainWindow):
                     for i, bout_end in enumerate(bout_ends[0:-1]):
                         if bout_end < bout_starts[i+1] - meal_isi:
                             
-                            num_meals += 1
-                            meal_dur.append( meal_data.ix[prev_meal_start_index:i+1]['bout_dur'].sum() )
+                            meal_start = meal_data.ix[prev_meal_start_index].name
+                            meal_end = meal_data.ix[i].name
+                            last_bout_dur = meal_data.ix[i]['bout_dur']
+                            
+                            meal_dur.append((meal_end - meal_start ).seconds + last_bout_dur )
                             meal_grams.append( meal_data.ix[prev_meal_start_index:i+1]['g_change'].sum() )
                             prev_meal_start_index = i + 1
                     
                     # add data for last meal
-                    meal_dur.append( meal_data.ix[prev_meal_start_index:]['bout_dur'].sum() )
+                    meal_dur.append( (meal_data.ix[-1].name - meal_data.ix[prev_meal_start_index].name).seconds + meal_data.ix[-1]['bout_dur'])
                     meal_grams.append( meal_data.ix[prev_meal_start_index:]['g_change'].sum() )
+                    
+                    # cut out meals below threshold
+                    meal_mask           = np.array(meal_grams) >= min_meal_g
+                    meal_dur_masked     = np.array(meal_dur)[meal_mask]
+                    meal_grams_masked   = np.array(meal_grams)[meal_mask]
+                    num_meals = len(meal_dur_masked)
 
                     # make meals dataframe
                     df_meals = pd.DataFrame(index = df_cage.index, columns = ['num_meals', 'avg_meal_dur', 'avg_meal_g'])
                     df_meals['num_meals'][0] = num_meals
-                    df_meals['avg_meal_dur'][0] = np.mean(meal_dur)
-                    df_meals['avg_meal_g'][0] = np.mean(meal_grams)
+                    df_meals['avg_meal_dur'][0] = np.mean(meal_dur_masked)
+                    df_meals['avg_meal_g'][0] = np.mean(meal_grams_masked)
                     
                     # create dataframe to append to analyzed_data
                     df_bouts = pd.concat([df_cage, df_n_bouts, df_bout_dur, df_g_change], axis = 1)
@@ -244,10 +255,6 @@ class StartQT4(QtGui.QMainWindow):
         # dates
         elif self.ui.StartDateEdit.date() > self.ui.EndDateEdit.date():
             self.ui.EndDateEdit.setDate( self.ui.StartDateEdit.date() )
-        # times
-        elif self.ui.StartTimeEdit.time() > self.ui.EndTimeEdit.time():
-            self.ui.EndTimeEdit.setTime( self.ui.StartTimeEdit.time() )
-            self.ui.EndTimeEdit.stepBy(1)
             
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)

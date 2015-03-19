@@ -80,9 +80,10 @@ MP150206A_feedtimes, MP150206A_watertimes, bed_times = tp.parse_feedtimes_csv('E
 MP150226A_feedtimes, MP150226A_watertimes, bed_times = tp.parse_feedtimes_csv('E:\\MP_Data\\150226A\\150226A feeding.csv')
 MP150303A_feedtimes, MP150303A_watertimes, bed_times = tp.parse_feedtimes_csv('E:\\MP_Data\\150303A\\150303A feeding.csv')
 MP150306A_feedtimes, MP150306A_watertimes, x = tp.parse_feedtimes_csv('E:\\MP_Data\\150306A\\150306A feeding.csv')
+MP150312A_feedtimes, MP150312A_watertimes, bed_times = tp.parse_feedtimes_csv('E:\\MP_Data\\150312A\\150312A feeding.csv')
 
-feedtimes = np.array(MP150306A_feedtimes) / 60
-watertimes = np.array(MP150306A_watertimes) / 60
+feedtimes = np.array(MP150312A_feedtimes) / 60
+watertimes = np.array(MP150312A_watertimes) / 60
 bed_times_min = np.array(bed_times) / 60
 
 for j in feedtimes:
