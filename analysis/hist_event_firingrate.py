@@ -13,7 +13,6 @@ usage: hist_event_firigrate(spike_times, event_list)
 import pdb
 import numpy as np
 import quantities as pq
-import scipy.stats as stats
 
 def hist_event_firingrate(spike_times, event_list, plot = True):
     

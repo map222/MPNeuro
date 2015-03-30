@@ -4,7 +4,7 @@ Created on Tue Jun 03 15:59:52 2014
 
 @author: palmiteradmin
 """
-import MPNeuro.nlxio.textparsing as tp
+import MPNeuro.nlxio.csv_parsing as cp
 import pdb
 
 # load spiketimes and event times for an experiment with a complete *.plx
@@ -45,5 +45,5 @@ def load_feed_times(filestring):
     
     full_filename = 'E:/MP_Data/' + filestring + '/' + filestring + ' feeding.csv'
     
-    feed_times, water_times = tp.parse_feedtimes_csv(full_filename)
+    feed_times, water_times = cp.parse_feedtimes_csv(full_filename)
     return feed_times, water_times # times are in seconds

@@ -7,18 +7,18 @@ Created on Tue Dec 02 16:40:58 2014
 
 from __future__ import division
 import numpy as np
-import math
 import pdb
     
-def main(spike_times, feed_times):
-    # spike_times is an N X spikes matrix of spike times
-    # feeding_times is a 2 x N matrix of epochs when mouse was feeding (units of seconds)
+def main(spike_times, feed_times, time_range ):
+    """ spike_times is an N X spikes matrix of spike times
+        feeding_times is a 2 x N matrix of epochs when mouse was feeding (units of seconds)
+        time_range is a pair of [start, stop] times in seconds (to avoid pre-food when they eat bedding, and after food during unit identification)
+        """
 
     # create time points for beginning and end of non-feeding times
-    max_time = int(max([max(z) for z in spike_times])) +1
     nonfeed_times = np.hstack(feed_times)
-    nonfeed_times = np.insert(nonfeed_times, 0, 0) # I feel like this could be one line
-    nonfeed_times = np.append(nonfeed_times, max_time).reshape((-1, 2))
+    nonfeed_times = np.insert(nonfeed_times, 0, time_range[0]) # I feel like this could be one line
+    nonfeed_times = np.append(nonfeed_times, time_range[1]).reshape((-1, 2))
     
     num_units = np.size(spike_times)
     avg_feed_rate = np.zeros(num_units)

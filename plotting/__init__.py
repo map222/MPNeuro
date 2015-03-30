@@ -3,6 +3,8 @@
 Created on Tue Jun 03 15:19:53 2014
 
 @author: palmiteradmin
+
+Basic plotting functions
 """
 
 
@@ -29,19 +31,12 @@ def plot_hist_firingrate(bins, firingrates, firing_sem = []):
             label = str(i), linewidth = math.ceil((i+4 )/ len(colorj)), color = colorj[i%len(colorj)])
 
     plt.legend(frameon = False)
-    ax.spines['right'].set_color('none')
-    ax.spines['top'].set_color('none')
-    ax.xaxis.set_ticks_position('bottom')
-    ax.yaxis.set_ticks_position('left')
+    prettify_axes(ax)    
     
 
     plt.xlabel('Time (sec)', fontsize = 18)
     plt.ylabel('Firing Rate', fontsize = 18)
     plt.show()
-    for tick in ax.xaxis.get_major_ticks():
-        tick.label.set_fontsize(14)
-    for tick in ax.yaxis.get_major_ticks():
-        tick.label.set_fontsize(14)
         
 def raster(aligned_spikes): # copied from internet :)
     fig = plt.figure(figsize = [12, 6])
@@ -50,12 +45,20 @@ def raster(aligned_spikes): # copied from internet :)
         ax.vlines(trial, ith + .5, ith + 1.5, color='black')
     plt.ylim(.5, len(aligned_spikes) + .5)
     
-    ax.spines['right'].set_color('none')
-    ax.spines['top'].set_color('none')
-    ax.xaxis.set_ticks_position('bottom')
-    ax.yaxis.set_ticks_position('left')
-    
+    prettify_axes(ax)    
     
     plt.xlabel('Time (sec)', fontsize = 18)
     plt.ylabel('Trial', fontsize = 18)
     return ax
+
+def prettify_axes( ax ):
+    """ takes a matplot lib axis, and removes the top and right parts of it, then increases font size """
+      
+    ax.spines['right'].set_color('none')
+    ax.spines['top'].set_color('none')
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
+    for tick in ax.xaxis.get_major_ticks():
+        tick.label.set_fontsize(14)
+    for tick in ax.yaxis.get_major_ticks():
+        tick.label.set_fontsize(14)
