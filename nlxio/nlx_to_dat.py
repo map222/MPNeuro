@@ -14,7 +14,7 @@ import MPNeuro
 import sys
 
 
-def load_nlx_save_dat(output_name, numChan):
+def load_nlx_save_dat(output_name, numChan = 16):
     
     allcsc, nothing = MPNeuro.nlxio.loadTetrodeNcs('CSC%C.ncs', nCh = numChan, trim_zeros = False)
     allcsc.tofile(output_name + '.dat')

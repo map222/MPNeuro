@@ -13,39 +13,18 @@ import MPNeuro.nlxio.csv_parsing as cp
 import pdb
 import MPNeuro.plotting as MP_plot
     
-def plot_feed_times( spike_times, csv_name , time_range = []):
-    """ time_range is pair of [start, stop] times in seconds """
+def plot_spikes_feed_times( spike_times, exp_name , time_range = []):
+    """ Plot spikes vs time for multiple neurons, with overlaid feeding data
+        spike_times is a vector of SpikeTImes
+        exp_name is a string of format YYMMDDX for experiment name
+        time_range is pair of [start, stop] times in seconds """
     
-    if len(time_range) == 0:
-        time_range = [0, spike_times[0].max(0)]
-        
-    spike_hist = []
-    binwidth = 2 # in seconds
-    bins = np.array(range(time_range[0], time_range[1], binwidth))
-    lw = 3 # linewidth
-    colorj = ['g', 'b', 'k', 'r']
-    
-    fig = plt.figure(figsize = [12, 6])
-    ax = fig.add_subplot(1,1,1)
-    for i, curspikes in enumerate( spike_times):
-        temp, nothing = np.histogram(curspikes, bins=bins)
-        spike_hist.append(temp)
-        ax.plot(bins[:-1] / 60, spike_hist[i]/ (bins[1]-bins[0]), label = str(i),
-                 linewidth = math.ceil((i+3 )/ len(colorj)), color = colorj[i%len(colorj)])
-    max_Hz = 25
-    ax.plot([10, 10], [0, max_Hz], '-k', linewidth=1)
-    
-    plt.legend(frameon = False)
-    plt.xlabel('Time (min)', fontsize = 18)
-    plt.ylabel('Firing Rate', fontsize = 18)
-    plt.show()
-    
-    MP_plot.prettify_axes(ax)  
-    plt.xlim(time_range[0]/60, time_range[1]/60)
+    # plot the spike times
+    fig, spike_hist = plot_spikes(spike_times, time_range)
     
     reload(cp)
     
-    feed_times, water_times, bed_times = cp.get_times_from_csv_name(csv_name)
+    feed_times, water_times, bed_times = cp.get_feedtimes_from_exp_name( exp_name)
     
     feed_times_min = np.array(feed_times) / 60
     water_times_min = np.array(water_times) / 60
@@ -60,3 +39,50 @@ def plot_feed_times( spike_times, csv_name , time_range = []):
     fig.canvas.manager.window.raise_()
     
     return np.corrcoef(spike_hist)
+    
+    
+def plot_spikes_heat( spike_times, exp_name , time_range = []):
+    """ Plot spikes vs time for multiple neurons with overlaid temperature for hot plate experiments
+        spike_times is a vector of SpikeTImes
+        exp_name is a string of format YYMMDDX for experiment name
+        time_range is pair of [start, stop] times in seconds """
+    
+    fig, spike_hist = plot_spikes(spike_times, time_range)
+    
+    reload(cp)
+    
+    heat_times, heat_temps = cp.get_heat_from_exp_name( exp_name )
+    heat_times_min = np.array(heat_times ) / 60
+    
+    plt.plot(heat_times_min, heat_temps, linewidth = 2, color = 'k')
+    
+    
+def plot_spikes(spike_times, time_range = []):
+    """ This function is called by plot_spikes_feed_times, and plot_spikes_heat_times
+        to plot all the spikes nicely """
+    
+    # if there was no specific time_range, it will go from 0 to max
+    if len(time_range) == 0:
+        time_range = [0, int(spike_times[0].max(0))]
+        
+    spike_hist = []
+    binwidth = 2 # in seconds
+    bins = np.array(range(time_range[0], time_range[1], binwidth))
+    colorj = ['g', 'b', 'k', 'r']
+    
+    fig = plt.figure(figsize = [12, 6])
+    ax = fig.add_subplot(1,1,1)
+    for i, curspikes in enumerate( spike_times):
+        temp, nothing = np.histogram(curspikes, bins=bins)
+        spike_hist.append(temp)
+        ax.plot(bins[:-1] / 60, spike_hist[i]/ (bins[1]-bins[0]), label = str(i),
+                 linewidth = math.ceil((i+3 )/ len(colorj)), color = colorj[i%len(colorj)])
+    
+    plt.legend(frameon = False)
+    plt.xlabel('Time (min)', fontsize = 18)
+    plt.ylabel('Firing Rate', fontsize = 18)
+    plt.show()
+    
+    MP_plot.prettify_axes(ax)  
+    plt.xlim(time_range[0]/60, time_range[1]/60)
+    return fig, spike_hist

@@ -7,12 +7,12 @@ Created on Mon Apr 07 16:58:09 2014
 
 from __future__ import division
 import csv
-import numpy
+import numpy as np
 import pdb
 
 def parse_feedtimes_csv(filename):
     with open(filename) as csv_file:
-        csvreader = csv.reader(csv_file, quoting=csv.QUOTE_NONNUMERIC, delimiter = ' ')
+        csv_reader = csv.reader(csv_file, quoting=csv.QUOTE_NONNUMERIC, delimiter = ' ')
     
         # initiliaze the feedtimes and watertimes counters
         feedtimes = []
@@ -20,7 +20,7 @@ def parse_feedtimes_csv(filename):
         bed_times = []
         # go through all ines of csv, and append times to proper place
         #pdb.set_trace()
-        for row in csvreader:
+        for row in csv_reader:
             if row[0] == 'f':
                 feedtimes.append(int(row[1]))
                 feedtimes.append(int(row[2]))
@@ -37,22 +37,22 @@ def parse_feedtimes_csv(filename):
     bed_times_sec = map(convert_mmss_to_sec, bed_times)
     
     # need to do this INELEGANT mapping and reshaping because I can't figure out python
-    feedtimes_sec = numpy.reshape(feedtimes_sec, [numpy.size(feedtimes_sec) / 2, 2])
-    watertimes_sec = numpy.reshape(watertimes_sec, [numpy.size(watertimes_sec) / 2, 2])
-    bed_times_sec = numpy.reshape(bed_times_sec, [numpy.size(bed_times_sec) / 2, 2])
+    feedtimes_sec = np.reshape(feedtimes_sec, [np.size(feedtimes_sec) / 2, 2])
+    watertimes_sec = np.reshape(watertimes_sec, [np.size(watertimes_sec) / 2, 2])
+    bed_times_sec = np.reshape(bed_times_sec, [np.size(bed_times_sec) / 2, 2])
     
             
     return feedtimes_sec, watertimes_sec, bed_times_sec
     
-    # this function converts a timestamp of form mmss to simply number of seconds
 def convert_mmss_to_sec(mmss):
-    return numpy.floor(mmss / 100) * 60 + mmss % 100
+    """ this function converts a timestamp of form mmss to simply number of seconds """
+    return np.floor(mmss / 100) * 60 + mmss % 100
     
     
-def get_times_from_csv_name( csv_name ):
-    """ csv_name is a string containing csv name in format of YYMMDDX
+def get_feedtimes_from_exp_name( exp_name ):
+    """ exp_name is a string containing exp name in format of YYMMDDX
         Returns the output of parse_feedtimes_csv, namely feed_times, water_times, and bedding_times """
-    return parse_feedtimes_csv('E:\\MP_Data\\' + csv_name + '\\' + csv_name + ' feeding.csv')
+    return parse_feedtimes_csv('E:\\MP_Data\\' + exp_name + '\\' + exp_name + ' feeding.csv')
 
 #    # hardcoded feed and water times; I switched to csv parsing later; kept for posterity here
 #    MP140311A_feedtimes = feedtimes = [[688, 840], [878, 907], [995, 1060], [1080, 1100], [1210, 1350],
@@ -71,3 +71,25 @@ def get_times_from_csv_name( csv_name ):
 #                           [1681, 1743], [1785, 1835], [1855, 2092], [2469, 2676]]
 #    MP140402A_watertimes = [[1174, 1199], [1558, 1575], [1653, 1658], [2144, 2168], [2237, 2243], [2260, 2267]]
 #    #MP140404A_feedtimes, MP140404A_watertimes = tp.parse_feedtimes_csv('E:\\MP_Data\\Q12014\\140404A\\140404A feeding.csv')
+
+def parse_heattimes_csv( csv_name):
+    ''' This function loads a csv that contains two columns:
+        First: a timestamp in format mmss
+        Second: temperature in degrees celcius '''
+    with open(csv_name) as csv_file:
+        csv_reader = csv.reader(csv_file, quoting=csv.QUOTE_NONNUMERIC, delimiter = ' ')
+        
+        heat_times = []
+        heat_temps = []
+        for row in csv_reader:
+            heat_times.append( int(row[0]) )
+            heat_temps.append(row[1])
+        
+        heat_times_sec = map(convert_mmss_to_sec, heat_times)
+        
+        return heat_times_sec, heat_temps
+
+def get_heat_from_exp_name( exp_name ):
+    """ exp_name is a string containing exp name in format of YYMMDDX
+        Returns the output of parse_feedtimes_csv, namely feed_times, water_times, and bedding_times """
+    return parse_heattimes_csv('E:\\MP_Data\\' + exp_name + '\\' + exp_name + ' heating.csv')
