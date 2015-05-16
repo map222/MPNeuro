@@ -7,6 +7,7 @@ Created on Tue Mar 04 18:02:30 2014
 
 import neo
 import csv
+import pdb
 
 def load_spike_times(filename):
     """

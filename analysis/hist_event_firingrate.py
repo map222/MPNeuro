@@ -14,11 +14,13 @@ import pdb
 import numpy as np
 import quantities as pq
 
-def hist_event_firingrate(spike_times, event_list, plot = True):
+def hist_event_firingrate(spike_times, event_list, plot = True, labels = ' '):
     
 
     binwidth = 0.002
-    bins = np.arange(-0.2, 0.4+binwidth, binwidth) # bins used for histogram
+    t_start = -0.2
+    t_end = 0.4
+    bins = np.arange(t_start, t_end+binwidth, binwidth) # bins used for histogram
     
     num_units = np.shape(spike_times)[0] 
     
@@ -40,7 +42,7 @@ def hist_event_firingrate(spike_times, event_list, plot = True):
     if plot:
         import MPNeuro.plotting as MPplot
         reload(MPplot)
-        MPplot.plot_hist_firingrate(bins, all_hist_means, all_hist_sd)
+        MPplot.plot_hist_firingrate(bins, all_hist_means, labels, all_hist_sd)
         
     return all_hist_means, all_hist_sd
             

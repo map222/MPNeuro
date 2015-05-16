@@ -40,7 +40,8 @@ def verify_directory(filestring):
          print('Cannot find data directory')
          
 def load_feed_times(filestring):
-    # filename is a string of the experiment number, format MPYYMMDDX    ; suffix is added in function
+    ''' filename is a string of the experiment number, format MPYYMMDDX
+        .csv suffix is added in function '''
     verify_directory(filestring)
     
     full_filename = 'E:/MP_Data/' + filestring + '/' + filestring + ' feeding.csv'

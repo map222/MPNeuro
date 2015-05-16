@@ -54,7 +54,9 @@ def plot_spikes_heat( spike_times, exp_name , time_range = []):
     heat_times, heat_temps = cp.get_heat_from_exp_name( exp_name )
     heat_times_min = np.array(heat_times ) / 60
     
-    plt.plot(heat_times_min, heat_temps, linewidth = 2, color = 'k')
+    plt.plot(heat_times_min, heat_temps, linewidth = 2, color = 'k', label = 'Temp')
+    plt.ylabel('Firing Rate (Hz) / Temp  (C)', fontsize = 18)
+    plt.legend(frameon = False)
     
     
 def plot_spikes(spike_times, time_range = []):
@@ -66,7 +68,7 @@ def plot_spikes(spike_times, time_range = []):
         time_range = [0, int(spike_times[0].max(0))]
         
     spike_hist = []
-    binwidth = 2 # in seconds
+    binwidth = 5 # in seconds
     bins = np.array(range(time_range[0], time_range[1], binwidth))
     colorj = ['g', 'b', 'k', 'r']
     
@@ -75,7 +77,7 @@ def plot_spikes(spike_times, time_range = []):
     for i, curspikes in enumerate( spike_times):
         temp, nothing = np.histogram(curspikes, bins=bins)
         spike_hist.append(temp)
-        ax.plot(bins[:-1] / 60, spike_hist[i]/ (bins[1]-bins[0]), label = str(i),
+        ax.plot(bins[:-1] / 60, spike_hist[i]/ (bins[1]-bins[0]), label = 'Neuron ' + str(i),
                  linewidth = math.ceil((i+3 )/ len(colorj)), color = colorj[i%len(colorj)])
     
     plt.legend(frameon = False)

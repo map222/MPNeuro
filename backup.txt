@@ -1,0 +1,1 @@
+for /R E:\MP_Data %f in (*.xml) do copy %f E:\backup\

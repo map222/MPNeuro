@@ -13,36 +13,38 @@ import pdb
 import matplotlib.pyplot as plt
 import math
 
-def plot_hist_firingrate(bins, firingrates, firing_sem = []):
+def plot_hist_firingrate(bins, firingrates, labels = ' ', firing_sem = []):  
+    if labels == ' ':
+        labels = [str(i) for i in range(len(bins)) ]
     
     # setup
     bins2 = bins[:-1] + (bins[1]-bins[0])/2 # offset bins to center them
     fig = plt.figure(figsize = [12, 6])
     ax = fig.add_subplot(1,1,1)
-    lw = 4 # linewidth
+    #lw = 4 # linewidth
     colorj = ['g', 'b', 'k', 'r']
-    
-    rate_conversion = bins[1] - bins[0]
+
+    rate_conversion =  bins[1] - bins[0] #use bins to convert to firing rate
     
     # plot all the firing rates
     for i, rows in enumerate(firingrates):
         #rows = np.convolve(rows, [0.25, 0.5, 0.25], mode = 'same')    
         ax.errorbar(bins2, rows / rate_conversion, yerr = firing_sem[i,:] / rate_conversion,
-            label = str(i), linewidth = math.ceil((i+4 )/ len(colorj)), color = colorj[i%len(colorj)])
+            label = labels[i], linewidth = math.ceil((i+4 )/ len(colorj)), color = colorj[i%len(colorj)])
 
     plt.legend(frameon = False)
     prettify_axes(ax)    
     
 
     plt.xlabel('Time (sec)', fontsize = 18)
-    plt.ylabel('Firing Rate', fontsize = 18)
+    plt.ylabel('Spikes / trial', fontsize = 18)
     plt.show()
         
 def raster(aligned_spikes): # copied from internet :)
     fig = plt.figure(figsize = [12, 6])
     ax = fig.add_subplot(1,1,1)
     for ith, trial in enumerate(aligned_spikes):
-        ax.vlines(trial, ith + .5, ith + 1.5, color='black')
+        ax.vlines(trial, ith + .5, ith + 1.5, color='black', linewidth = 2)
     plt.ylim(.5, len(aligned_spikes) + .5)
     
     prettify_axes(ax)    
