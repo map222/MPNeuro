@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'BioDAQGUI.ui'
 #
-# Created: Mon Mar 16 17:15:13 2015
+# Created: Mon May 18 21:34:59 2015
 #      by: PyQt4 UI code generator 4.9.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -197,7 +197,7 @@ class Ui_MainWindow(object):
         self.BinSizeBox = QtGui.QSpinBox(self.layoutWidget8)
         self.BinSizeBox.setEnabled(True)
         self.BinSizeBox.setMinimum(1)
-        self.BinSizeBox.setMaximum(300)
+        self.BinSizeBox.setMaximum(1380)
         self.BinSizeBox.setProperty("value", 60)
         self.BinSizeBox.setObjectName(_fromUtf8("BinSizeBox"))
         self.horizontalLayout_10.addWidget(self.BinSizeBox)

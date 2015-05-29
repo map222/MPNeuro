@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 To do:
-    allow times past midnight
-    meal calculations
-    -give user error messages for stupid shit like wrong cage or wrong date
-    
     -graph in .exe version
 
 Created on Sat Jan 17 17:56:55 2015

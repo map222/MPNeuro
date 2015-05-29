@@ -70,37 +70,37 @@ def load_svoboda_cell(date_string, cell_id, start_id, end_id):
     return cur_data
     
 def compare_truth_pyfnnd( ca_data, learn_theta = (0, 1, 1, 1, 0), tau = 0.6 ):
-    from sklearn.metrics import roc_curve, auc
     from fit_neuron.evaluate import spkd_lib as spkd
     
     n_best, c_best, LL, theta_best = pyfnnd.deconvolve( ca_data.df_f.reshape(-1, 1).T, 
-        dt=0.016, verbosity=1, learn_theta=learn_theta, tau = tau,
+        dt=0.0166, verbosity=1, learn_theta=learn_theta, #tau = tau,
         spikes_tol=1E-5, params_tol=1E-5 )
         
-    pdb.set_trace()
-
     resamp_spikes = MP_analy.downsample_spike_train(ca_data.spike_train, ca_data.spike_time, ca_data.fluor_time)
     resamp_spikes[resamp_spikes > 1 ] = 1
     n_best = np.roll(n_best, -1)
+    
+    pyfnnd.plotting.plot_fit(ca_data.df_f.reshape(-1, 1).T, n_best, c_best, theta_best, 0.0166)
 
-    fpr, tpr, thresholds = roc_curve(resamp_spikes, n_best, pos_label = 1)
-    my_auc = auc(fpr, tpr)
+#    from sklearn.metrics import roc_curve, auc
+#    fpr, tpr, thresholds = roc_curve(resamp_spikes, n_best, pos_label = 1)
+#    my_auc = auc(fpr, tpr)
 
-    plt.figure()
-    plt.plot(fpr, tpr)
-    plt.xlabel('False Positive Rate', fontsize = 18)
-    plt.ylabel('True Positive Rate', fontsize = 18)
-    plt.title('AUC = ' + str(my_auc))
+#    plt.figure()
+#    plt.plot(fpr, tpr)
+#    plt.xlabel('False Positive Rate', fontsize = 18)
+#    plt.ylabel('True Positive Rate', fontsize = 18)
+#    plt.title('AUC = ' + str(my_auc))
     
     
     thresholds = np.arange(0.01, 1, 0.01)
     true_spk_times = ca_data.spike_time[ca_data.spike_train>0.5]
-    max_dist = 2* len(true_spk_times )
+    max_dist = 2* len(true_spk_times ) # maximum distance for victor purpura
     vp = max_dist * np.ones(99) # victor-purpura
     vp_cost = 5
     
     for i, thresh in enumerate(thresholds):
-        if np.sum(n_best > thresh) > max_dist:
+        if np.sum(n_best > thresh) > max_dist: # is you have a lot of bad spikes, calculating vp can be long
             continue
         else:
             vp[i] = spkd.victor_purpura_dist(ca_data.fluor_time[n_best >thresh], true_spk_times, vp_cost)
@@ -114,13 +114,34 @@ def compare_truth_pyfnnd( ca_data, learn_theta = (0, 1, 1, 1, 0), tau = 0.6 ):
     MP_plot.prettify_axes(ax)
 
 
-    example_spikes = threshold_spike_prob(n_best, 0.1)
+    example_spikes = threshold_spike_prob(n_best, 0.07)
     ca_data.plot_calcium_spikes() # makes a new figure
     plt.plot( ca_data.fluor_time, example_spikes + 0.5)
     
-    return my_auc
+    return np.min(2 * vp / max_dist)
 
 def threshold_spike_prob(spike_prob, thresh):
     spike_prob[spike_prob >= thresh] = 1
     spike_prob[spike_prob < thresh] = 0
     return spike_prob
+    
+def load_all_GCaMP6s():
+    all_cells = []
+    all_cells.append( load_svoboda_cell('0416', 1, 1, 2) )
+    all_cells.append( load_svoboda_cell('0417', 1, 2, 2) )
+    all_cells.append( load_svoboda_cell('0417', 3, 1, 3) )
+    all_cells.append( load_svoboda_cell('0417', 4, 1, 3) )
+    all_cells.append( load_svoboda_cell('0417', 5, 2, 2) )
+    all_cells.append( load_svoboda_cell('0515', 1, 3, 6) )
+    all_cells.append( load_svoboda_cell('0627', 2, 1, 2) )
+    all_cells.append( load_svoboda_cell('0627', 3, 1, 2) )
+    all_cells.append( load_svoboda_cell('0627', 4, 4, 5) )
+    
+    return all_cells
+    
+def analyze_all_GCaMP6s(bunch_o_cells):
+    np_mins = []
+    for i in range(len(bunch_o_cells)):
+        np_mins.append( compare_truth_pyfnnd(bunch_o_cells[i]) )
+        
+    return np_mins
