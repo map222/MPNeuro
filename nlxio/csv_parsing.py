@@ -8,16 +8,29 @@ Created on Mon Apr 07 16:58:09 2014
 from __future__ import division
 import csv
 import numpy as np
-import pdb
+import MPNeuro.nlxio.helper_functions as hf
 
 def parse_feedtimes_csv(filename):
-    with open(filename) as csv_file:
+    ''' Load a feedtimes csv which contains 3 columns separated by spaces:
+        "x" mmss mmss
+        filename: prefix of feeding filename (.csv is added later)
+        returns 3 arrays: feed_times, water_times, and bed_times
+    '''
+    
+    assert not filename.endswith('.csv'), 'Filename should not end in .csv'
+    
+    # make sure I am in the directory with the feeding.csv file
+    hf.verify_directory(filename, '.csv')
+    
+    # open the file and start parsing!
+    with open(filename+'.csv') as csv_file:
         csv_reader = csv.reader(csv_file, quoting=csv.QUOTE_NONNUMERIC, delimiter = ' ')
     
         # initiliaze the feedtimes and watertimes counters
         feedtimes = []
         watertimes = []
         bed_times = []
+
         # go through all ines of csv, and append times to proper place
         #pdb.set_trace()
         for row in csv_reader:
@@ -30,7 +43,8 @@ def parse_feedtimes_csv(filename):
             elif row[0] == 'b':
                 bed_times.append(int(row[1]))
                 bed_times.append(int(row[2]))
-    
+
+
     # convert the format
     feedtimes_sec = map(convert_mmss_to_sec, feedtimes)
     watertimes_sec = map(convert_mmss_to_sec, watertimes)
@@ -43,16 +57,11 @@ def parse_feedtimes_csv(filename):
     
             
     return feedtimes_sec, watertimes_sec, bed_times_sec
-    
+
 def convert_mmss_to_sec(mmss):
     """ this function converts a timestamp of form mmss to simply number of seconds """
     return np.floor(mmss / 100) * 60 + mmss % 100
     
-    
-def get_feedtimes_from_exp_name( exp_name ):
-    """ exp_name is a string containing exp name in format of YYMMDDX
-        Returns the output of parse_feedtimes_csv, namely feed_times, water_times, and bedding_times """
-    return parse_feedtimes_csv('E:\\MP_Data\\' + exp_name + '\\' + exp_name + ' feeding.csv')
 
 #    # hardcoded feed and water times; I switched to csv parsing later; kept for posterity here
 #    MP140311A_feedtimes = feedtimes = [[688, 840], [878, 907], [995, 1060], [1080, 1100], [1210, 1350],

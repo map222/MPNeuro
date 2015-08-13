@@ -24,7 +24,7 @@ def plot_spikes_feed_times( spike_times, exp_name , time_range = []):
     
     reload(cp)
     
-    feed_times, water_times, bed_times = cp.get_feedtimes_from_exp_name( exp_name)
+    feed_times, water_times, bed_times = cp.parse_feedtimes_csv( exp_name + ' feeding')
     
     feed_times_min = np.array(feed_times) / 60
     water_times_min = np.array(water_times) / 60
@@ -68,7 +68,7 @@ def plot_spikes(spike_times, time_range = []):
         time_range = [0, int(spike_times[0].max(0))]
         
     spike_hist = []
-    binwidth = 5 # in seconds
+    binwidth = 30 # in seconds
     bins = np.array(range(time_range[0], time_range[1], binwidth))
     colorj = ['g', 'b', 'k', 'r']
     

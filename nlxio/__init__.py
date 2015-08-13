@@ -95,11 +95,13 @@ def loadNcs(filename, should_d2a=True, should_read_time=True, trim_zeros=True,
         return tuple(retvals)
 
 
-def loadTetrodeNcs(filename, nCh = 16, should_d2a=True, trim_zeros=True):
+def loadTetrodeNcs(filename, channel_range = range(1, 17), should_d2a=True, trim_zeros=True):
     """Loads the four neuralynx .ncs files that form a tetrode.
 
     filename -- should contain the wildcard %C to indicate where to insert
         channels numbers -- e.g. filename='TT4E%C.ncs'
+        
+    channel_range -- list of channels to be read default to 1-16
 
     Keyword arguments:
     should_d2a -- convert from integer to microVolt units (default True)
@@ -115,6 +117,7 @@ def loadTetrodeNcs(filename, nCh = 16, should_d2a=True, trim_zeros=True):
     csc, ts, d2a = nlxio.loadTetrodeNcs('TT4E%C.ncs', should_d2a=False)
 
     """
+    
 
     if filename.find('%C') == -1:
         raise ValueError("Filename passed to loadTetrodeNcs must contain %C.")
@@ -124,7 +127,7 @@ def loadTetrodeNcs(filename, nCh = 16, should_d2a=True, trim_zeros=True):
     d2a = []
    # ts = None    Weird syntax, and don't understand why I'd want timestamps
     ts = False
-    for i in range(1, nCh+1):
+    for i in channel_range:
         print(i)
         tmp = loadNcs(filename.replace('%C', str(i)),
                       should_d2a=should_d2a,

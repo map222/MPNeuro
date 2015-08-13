@@ -24,7 +24,7 @@ def plot_hist_firingrate(bins, firingrates, labels = ' ', firing_sem = []):
     #lw = 4 # linewidth
     colorj = ['g', 'b', 'k', 'r']
 
-    rate_conversion =  bins[1] - bins[0] #use bins to convert to firing rate
+    rate_conversion = 1# bins[1] - bins[0] #use bins to convert to firing rate
     
     # plot all the firing rates
     for i, rows in enumerate(firingrates):
