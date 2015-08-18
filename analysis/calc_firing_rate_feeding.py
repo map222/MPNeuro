@@ -11,16 +11,16 @@ import pdb
     
 def main(spike_times, feed_times, time_range ):
     """ spike_times is an N X spikes matrix of spike times
-        feeding_times is a 2 x N matrix of epochs when mouse was feeding (units of seconds)
+        feeding_times is a N X 2 matrix of epochs when mouse was feeding (units of seconds)
         time_range is a pair of [start, stop] times in seconds (to avoid pre-food when they eat bedding, and after food during unit identification)
         """
+        
+    assert feed_times.shape[1] == 2, 'feed_times must be an N x 2 matrix of times in seconds'
         
     # create time points for beginning and end of non-feeding times
     nonfeed_times = np.hstack(feed_times)
     nonfeed_times = np.insert(nonfeed_times, 0, time_range[0]) # I feel like this could be one line
     nonfeed_times = np.append(nonfeed_times, time_range[1]).reshape((-1, 2))
-    
-    pdb.set_trace()
         
     # calculate firing rate by applying calc_avg_rate_epoch to each unit in spike_times
     # once for feeding times, and once for nonfeed_times

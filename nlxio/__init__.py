@@ -128,7 +128,7 @@ def loadTetrodeNcs(filename, channel_range = range(1, 17), should_d2a=True, trim
    # ts = None    Weird syntax, and don't understand why I'd want timestamps
     ts = False
     for i in channel_range:
-        print(i)
+        print('Loading channel: ' + str(i))
         tmp = loadNcs(filename.replace('%C', str(i)),
                       should_d2a=should_d2a,
                       # should_read_time = (ts is None),

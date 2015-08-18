@@ -2,23 +2,28 @@
 """
 Created on Mon Sep 15 16:25:55 2014
 
-@author: palmiteradmin
+@author: Michael Patterson, Palmiter lab (map222@uw.edu)
 
 generates raster plot of spike times, aligning them to laser onset
 
-usage: raster_spike_laser(spike_times, event_list)
-    spike_times is a 1 x N np.array of spike_times (N) (units of seconds)
-    event_list is np.array of event times (e.g. light pulse) (units of seconds)
 """
 
 import pdb
 import numpy as np
 import quantities as pq
-import scipy.stats as stats
 
-def raster_spike_laser(spike_times, laser_list, rast_start = -0.1, rast_end = 0.5, plot = True):
-    # spike_times is a single SpikeTrain array
-    # laser_list is a simple float list
+def raster_spike_laser(spike_times, laser_list, rast_start = -0.1, rast_end = 0.5, plot_flag = True):
+    ''' Plot raster of spike times locked to a series of events
+    
+    Arguments:
+    spike_times: 1 x N spikes SpikeTrain array
+    laser_list: python float list of event times, units of seconds [is this np.array?]
+    rast_start: time of raster start, in units of seconds
+    rast_end: time of raster end, in units of seconds
+    plot_flag: whether to plot the raster, or simply return the results
+    '''
+    
+    assert spike_times.ndim == 1, 'spike_times must be a single SpikeTrain array, not a matrix'
 
     # aligned_spikes is a list of numpy arrays
     aligned_spikes = [np.array(0) for a in enumerate(laser_list)]
@@ -28,7 +33,7 @@ def raster_spike_laser(spike_times, laser_list, rast_start = -0.1, rast_end = 0.
         aligned_spikes[i] = window_spike_times(spike_times[0], cur_event + rast_start, cur_event+rast_end) - cur_event * pq.s
 
     # pdb.set_trace()
-    if plot:
+    if plot_flag:
         import MPNeuro.plotting as MPplot
         reload(MPplot)
         MPplot.raster(aligned_spikes)

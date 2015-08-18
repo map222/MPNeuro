@@ -51,7 +51,7 @@ def plot_spikes_heat( spike_times, exp_name , time_range = []):
     
     reload(cp)
     
-    heat_times, heat_temps = cp.get_heat_from_exp_name( exp_name )
+    heat_times, heat_temps = cp.parse_heattimes_csv( exp_name + ' heating' )
     heat_times_min = np.array(heat_times ) / 60
     
     plt.plot(heat_times_min, heat_temps, linewidth = 2, color = 'k', label = 'Temp')
@@ -68,7 +68,7 @@ def plot_spikes(spike_times, time_range = []):
         time_range = [0, int(spike_times[0].max(0))]
         
     spike_hist = []
-    binwidth = 30 # in seconds
+    binwidth = 5 # in seconds
     bins = np.array(range(time_range[0], time_range[1], binwidth))
     colorj = ['g', 'b', 'k', 'r']
     

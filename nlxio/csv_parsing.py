@@ -10,20 +10,20 @@ import csv
 import numpy as np
 import MPNeuro.nlxio.helper_functions as hf
 
-def parse_feedtimes_csv(filename):
+def parse_feedtimes_csv(csv_name):
     ''' Load a feedtimes csv which contains 3 columns separated by spaces:
         "x" mmss mmss
-        filename: prefix of feeding filename (.csv is added later)
+        filename: prefix of feeding filename (.csv is added later), e.g. '150812A feeding'
         returns 3 arrays: feed_times, water_times, and bed_times
     '''
     
-    assert not filename.endswith('.csv'), 'Filename should not end in .csv'
+    assert not csv_name.endswith('.csv'), 'Filename should not end in .csv'
     
     # make sure I am in the directory with the feeding.csv file
-    hf.verify_directory(filename, '.csv')
+    hf.verify_directory(csv_name + '.csv')
     
     # open the file and start parsing!
-    with open(filename+'.csv') as csv_file:
+    with open(csv_name+'.csv') as csv_file:
         csv_reader = csv.reader(csv_file, quoting=csv.QUOTE_NONNUMERIC, delimiter = ' ')
     
         # initiliaze the feedtimes and watertimes counters
@@ -84,8 +84,16 @@ def convert_mmss_to_sec(mmss):
 def parse_heattimes_csv( csv_name):
     ''' This function loads a csv that contains two columns:
         First: a timestamp in format mmss
-        Second: temperature in degrees celcius '''
-    with open(csv_name) as csv_file:
+        Second: temperature in degrees celcius
+        csv_name: filename of experiment, e.g. "150821A heating"
+        '''
+
+    assert not csv_name.endswith('.csv'), 'csv_name should not end in .csv'
+
+    # make sure I am in the directory with the feeding.csv file
+    hf.verify_directory(csv_name + '.csv')    
+        
+    with open(csv_name + '.csv') as csv_file:
         csv_reader = csv.reader(csv_file, quoting=csv.QUOTE_NONNUMERIC, delimiter = ' ')
         
         heat_times = []
@@ -97,8 +105,8 @@ def parse_heattimes_csv( csv_name):
         heat_times_sec = map(convert_mmss_to_sec, heat_times)
         
         return heat_times_sec, heat_temps
-
-def get_heat_from_exp_name( exp_name ):
-    """ exp_name is a string containing exp name in format of YYMMDDX
-        Returns the output of parse_feedtimes_csv, namely feed_times, water_times, and bedding_times """
-    return parse_heattimes_csv('E:\\MP_Data\\' + exp_name + '\\' + exp_name + ' heating.csv')
+#
+#def get_heat_from_exp_name( exp_name ):
+#    """ exp_name is a string containing exp name in format of YYMMDDX
+#        Returns the output of parse_feedtimes_csv, namely feed_times, water_times, and bedding_times """
+#    return parse_heattimes_csv('E:\\MP_Data\\' + exp_name + '\\' + exp_name + ' heating.csv')
