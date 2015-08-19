@@ -2,7 +2,10 @@
 """
 Created on Wed May 13 01:17:54 2015
 
-@author: palmiteradmin
+@author: Michael Patterson
+
+Script to analyze calcium imaging data from Svoboda lab. Specifically, this uses deconvolution
+to see whether it is possible to detect spike from calcium transients / events.
 """
 import numpy as np
 import pdb
@@ -36,7 +39,8 @@ class CalciumData:
 
 def load_svoboda_cell(date_string, cell_id, start_id, end_id):
     """ Loads in the fluorescence and spike times from an experiment from Chen 2013
-    date_string is a MMDD string, e.g. '0521'
+    
+    date_string: MMDD string, e.g. '0521'
     cell_id is number of the cell
     start_id and end_id are the start and end for the files
     """
@@ -69,7 +73,25 @@ def load_svoboda_cell(date_string, cell_id, start_id, end_id):
     
     return cur_data
     
+def load_all_GCaMP6s():
+    ''' Load all of the cells in the Chen 2013 dataset '''
+    
+    all_cells = []
+    all_cells.append( load_svoboda_cell('0416', 1, 1, 2) )
+    all_cells.append( load_svoboda_cell('0417', 1, 2, 2) )
+    all_cells.append( load_svoboda_cell('0417', 3, 1, 3) )
+    all_cells.append( load_svoboda_cell('0417', 4, 1, 3) )
+    all_cells.append( load_svoboda_cell('0417', 5, 2, 2) )
+    all_cells.append( load_svoboda_cell('0515', 1, 3, 6) )
+    all_cells.append( load_svoboda_cell('0627', 2, 1, 2) )
+    all_cells.append( load_svoboda_cell('0627', 3, 1, 2) )
+    all_cells.append( load_svoboda_cell('0627', 4, 4, 5) )
+    
+    return all_cells
+    
 def compare_truth_pyfnnd( ca_data, learn_theta = (0, 1, 1, 1, 0), tau = 0.6 ):
+    '''
+    '''
     from fit_neuron.evaluate import spkd_lib as spkd
     
     n_best, c_best, LL, theta_best = pyfnnd.deconvolve( ca_data.df_f.reshape(-1, 1).T, 
@@ -124,20 +146,6 @@ def threshold_spike_prob(spike_prob, thresh):
     spike_prob[spike_prob >= thresh] = 1
     spike_prob[spike_prob < thresh] = 0
     return spike_prob
-    
-def load_all_GCaMP6s():
-    all_cells = []
-    all_cells.append( load_svoboda_cell('0416', 1, 1, 2) )
-    all_cells.append( load_svoboda_cell('0417', 1, 2, 2) )
-    all_cells.append( load_svoboda_cell('0417', 3, 1, 3) )
-    all_cells.append( load_svoboda_cell('0417', 4, 1, 3) )
-    all_cells.append( load_svoboda_cell('0417', 5, 2, 2) )
-    all_cells.append( load_svoboda_cell('0515', 1, 3, 6) )
-    all_cells.append( load_svoboda_cell('0627', 2, 1, 2) )
-    all_cells.append( load_svoboda_cell('0627', 3, 1, 2) )
-    all_cells.append( load_svoboda_cell('0627', 4, 4, 5) )
-    
-    return all_cells
     
 def analyze_all_GCaMP6s(bunch_o_cells):
     np_mins = []

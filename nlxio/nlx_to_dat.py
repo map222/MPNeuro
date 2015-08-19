@@ -4,7 +4,7 @@
 """
 @author: Michael Patterson, Palmiter Lab (map222@uw.edu)
 
-This script should be run in the directory you want to produce the .dat file in
+This script can be run in the directory you want to produce the .dat file in
 Syntax: nlx_to_dat name numChan
 e.g. nlx_to_dat 120220A 16
 """
@@ -13,9 +13,14 @@ import MPNeuro
 import sys
 import pdb
 
-# load a neuralynx .nlx file and save as a binary .dat file (which can be read in Offline Sorter)
 def load_nlx_save_dat(output_name, numChan):
-    # output_name -- string for name of .dat file
+    ''' Load a neuralynx .nlx file and save as a binary .dat file (which can be read in Offline Sorter)
+    
+    output_name: string for name of .dat file 
+    numChan: number of channels to be read
+        if numChan is an integer, load_nlx reads channels 1-numChan
+        if numChan is a range (e.g. [5, 16]), load_nlx will read within the range
+    '''
     
     # load the neuralynx file
     allcsc = load_nlx(numChan)
@@ -23,9 +28,11 @@ def load_nlx_save_dat(output_name, numChan):
 
 # specific csc loading function
 def load_nlx(numChan = 16):
-    # numChan -- number of channels to be read
-    #   if numChan is an integer, it reads channels 1-numChan
-    #   if numChan is a range, it will read within the range
+    '''
+    numChan: number of channels to be read
+        if numChan is an integer, load_nlx reads channels 1-numChan
+        if numChan is a range (e.g. [5, 16]), load_nlx will read within the range
+    '''
 
     # check type of numChan, and make range for loadTetrodeNcs
     if type(numChan) is int:

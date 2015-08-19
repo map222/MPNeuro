@@ -15,9 +15,12 @@ import MPNeuro.plotting as MP_plot
     
 def plot_spikes_feed_times( spike_times, exp_name , time_range = []):
     """ Plot spikes vs time for multiple neurons, with overlaid feeding data
-        spike_times is a vector of SpikeTImes
-        exp_name is a string of format YYMMDDX for experiment name
-        time_range is pair of [start, stop] times in seconds """
+    
+    Arguments:
+    spike_times is a vector of SpikeTImes
+    exp_name is a string of format YYMMDDX for experiment name
+    time_range is pair of [start, stop] times in seconds
+    """
     
     # plot the spike times
     fig, spike_hist = plot_spikes(spike_times, time_range)
@@ -45,7 +48,8 @@ def plot_spikes_heat( spike_times, exp_name , time_range = []):
     """ Plot spikes vs time for multiple neurons with overlaid temperature for hot plate experiments
         spike_times is a vector of SpikeTImes
         exp_name is a string of format YYMMDDX for experiment name
-        time_range is pair of [start, stop] times in seconds """
+        time_range is pair of [start, stop] times in seconds
+    """
     
     fig, spike_hist = plot_spikes(spike_times, time_range)
     

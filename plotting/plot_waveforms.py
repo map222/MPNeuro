@@ -3,41 +3,45 @@
 Created on Mon Aug 17 13:19:33 2015
 
 @author: Michael Patterson, Palmiter Lab (map222@uw.edu)
+
+Functions to plot waveforms from cutouts, either for single spikes, or for wideband
 """
 
 from __future__ import division
 import numpy as np
 import bisect
 import matplotlib.pyplot as plt
+import MPNeuro.nlxio as nlxio
 import pdb
 
-def extract_waveform_at_timestamp(wideband, timestamps, sampling_freq = 32000):
-    ''' Extracts the spike waveforms from the wideband data at specific tiMPNeuro.analysis
+def load_plot_tagged_waveforms( tetrode, event_times, spike_times ):
+    ''' Load wideband data, cutout waveforms you care about, and then plot them
     
     Arguments:
-    wideband: wideband data from a tetrode, probably loaded in by nlxio...load_nlx
-    time_stamps: a single numpy array of timestamps in units of seconds
-    sampling_freq: sampling rate for acquisition
+    tetrode: number of the tetrode you care about (tetrode 1 = channels 1-4)
+    event_times: 1 x N np.array of event_stamps
+    spike_times: SpikeTrain array
     '''
     
-    # check validity of inputs
-    assert wideband.shape[1] == 4, 'wideband must contain only one tetrode!'
-    assert timestamps.ndim == 1, 'timestamps must be a single timestamp numpy array!'
+    if hasattr(spike_times, 'unit'): # if spike_times is a SpikeTrain variable, convert to nd.array
+        spike_times = np.array(spike_times)
     
-    if hasattr(timestamps, 'unit'): # if timestamps is a SpikeTrain variable, convert to nd.array
-        timestamps = np.array(timestamps)
+    # load wideband
+    channel_range = [(tetrode-1)*4 +1, tetrode*4]
+    wideband = nlxio.nlx_to_dat.load_nlx(channel_range)
     
-    # convert timestamps to indices
-    num_points = wideband.size
-    ts = 1 / sampling_freq
-    timepoints = np.arange(0, num_points * ts, ts)
-    index_stamps = map(lambda x: bisect.bisect_left(timepoints, x), timestamps)
+    # tag the spikes
+    tagged, spont = assign_timestamp_type(event_times, spike_times)
     
-    # get all of the cutouts
-    num_pre = 9 # how wide of a cutout to get
-    num_post = 22
-    cutouts = map(lambda x: wideband[x-num_pre:x+ num_post], index_stamps)
-    return cutouts
+    # extract the spike cutouts
+    tagged_waveforms = nlxio.helper_functions.extract_waveform_at_timestamp(wideband, tagged)
+    spont_waveforms = nlxio.helper_functions.extract_waveform_at_timestamp(wideband, spont)
+    
+    # plot the tagged and spontaneous spikes
+    tagged_fig = plot_all_cutouts(tagged_waveforms)
+    tagged_fig.suptitle('Tagged waveforms')
+    spont_fig = plot_all_cutouts(spont_waveforms)    
+    spont_fig.suptitle('Spontaneous waveforms')
 
 def plot_all_cutouts(cutouts, num_pre = 9, num_plot = 100, sampling_freq = 32000):
     ''' Plots a list of tetrode waveform cutouts
@@ -56,9 +60,12 @@ def plot_all_cutouts(cutouts, num_pre = 9, num_plot = 100, sampling_freq = 32000
     ts = 1 / sampling_freq
     timepoints = np.arange(-num_pre * ts, (cutout_length -num_pre)* ts, ts)
     
-    fig = plt.figure(figsize = [12, 6])
+    fig = plt.figure(figsize = [5, 7])
     ax = fig.add_subplot(4,1,1)
     map(lambda x: plot_cutout(timepoints, x), cutouts[0:num_plot])
+    plt.subplot(4, 1, 4)
+    plt.xlabel('Time (ms)')
+    #pdb.set_trace()
     
     return fig
 
@@ -67,7 +74,7 @@ def plot_cutout(timepoints, cutout):
     lw = 0.5
     for i in range(4): # hardcode 4 because I look at tetrodes
         plt.subplot(4, 1, i+1)
-        plt.plot(timepoints, cutout[:,i], linewidth = lw, color = 'grey')
+        plt.plot(timepoints*1000, cutout[:,i] / 1000, linewidth = lw, color = 'grey')
         
 def assign_timestamp_type(event_stamps, spike_stamps, window = 0.01):
     ''' Assign spike timestamps into two categories depending on whether spikes occur just after an event
@@ -78,9 +85,6 @@ def assign_timestamp_type(event_stamps, spike_stamps, window = 0.01):
     window: window after an event for which spikes should be tagged to that event; default is 10ms
     '''
     
-    
-    
-    pdb.set_trace()
     if hasattr(spike_stamps, 'unit'): # if timestamps is a SpikeTrain variable, convert to nd.array
         spike_stamps = np.array(spike_stamps)
     
@@ -99,6 +103,10 @@ def calc_is_tagged(event_stamps, spike_time, window = 0.01):
     spike_time: scalar timepoint of an ev
     '''
 
+    #pdb.set_trace()
     # find closest event to the spike    
     event_check_index= bisect.bisect_left(event_stamps, spike_time) - 1
-    return spike_time - event_stamps[event_check_index] < window # return true if it's close
+    if event_check_index == -1:
+        return False
+    else:
+        return spike_time - event_stamps[event_check_index] < window # return true if it's close

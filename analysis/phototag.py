@@ -2,7 +2,9 @@
 """
 Created on Fri Mar 06 09:46:38 2015
 
-@author: palmiteradmin
+@author: Michael Patterson
+
+A class and functions to calculate the latency, jitter, and other metrics of spikes following light
 """
 
 
