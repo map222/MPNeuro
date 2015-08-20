@@ -25,10 +25,9 @@ def plot_spikes_feed_times( spike_times, exp_name , time_range = []):
     # plot the spike times
     fig, spike_hist = plot_spikes(spike_times, time_range)
     
-    reload(cp)
-    
     feed_times, water_times, bed_times = cp.parse_feedtimes_csv( exp_name + ' feeding')
     
+    # convert times to times in minutes
     feed_times_min = np.array(feed_times) / 60
     water_times_min = np.array(water_times) / 60
     bed_times_min = np.array(bed_times) / 60
@@ -40,8 +39,8 @@ def plot_spikes_feed_times( spike_times, exp_name , time_range = []):
     for b in bed_times_min:
         plt.axvspan(b[0], b[1], facecolor = 'r', alpha = 0.15)
     fig.canvas.manager.window.raise_()
-    
-    return np.corrcoef(spike_hist)
+
+    return spike_hist, np.corrcoef(spike_hist)
     
     
 def plot_spikes_heat( spike_times, exp_name , time_range = []):
@@ -65,7 +64,13 @@ def plot_spikes_heat( spike_times, exp_name , time_range = []):
     
 def plot_spikes(spike_times, time_range = []):
     """ This function is called by plot_spikes_feed_times, and plot_spikes_heat_times
-        to plot all the spikes nicely """
+        to plot all the spikes nicely
+        
+    Arguments:
+        spike_times: timestamps of spikes in units of seconds
+        time_range: range to be displayed, in units of seconds
+            -useful to avoid phototagging spikes after behaviour
+        """
     
     # if there was no specific time_range, it will go from 0 to max
     if len(time_range) == 0:

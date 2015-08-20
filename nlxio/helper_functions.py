@@ -32,7 +32,7 @@ def load_analyzed_exp(filename, bool_histogram = False):
         #pdb.set_trace()
         import MPNeuro.analysis.hist_event_firingrate as hef
         reload(hef)
-        binned_spikes = hef.hist_event_firingrate(spike_times, laser_times, plot=True)
+        binned_spikes = hef.hist_event_firingrate(spike_times, laser_times, plot_flag=True)
     
     return dict(spike_times = spike_times, laser_times = laser_times, binned_spikes = binned_spikes)
 
@@ -70,7 +70,7 @@ def extract_waveform_at_timestamp(wideband, timestamps, sample_range = [9, 22], 
     '''
 
     # check validity of inputs
-    assert wideband.shape[1] == 4, 'wideband must contain only one tetrode!'
+    assert wideband.shape[1] < 5, 'wideband must contain only one tetrode!'
     assert timestamps.ndim == 1, 'timestamps must be a single timestamp numpy array!'
     assert sample_range[0] > -1, 'pre-event sample range should be positive!'
 
@@ -84,7 +84,6 @@ def extract_waveform_at_timestamp(wideband, timestamps, sample_range = [9, 22], 
     index_stamps = map(lambda x: bisect.bisect_left(timepoints, x), timestamps)
     
     # get all of the cutouts
-    pdb.set_trace()
     num_pre = sample_range[0] # how wide of a cutout to get
     num_post = sample_range[1]
     #cutouts = map(lambda x: wideband[x-num_pre:x+ num_post], index_stamps)

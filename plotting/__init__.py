@@ -2,20 +2,30 @@
 """
 Created on Tue Jun 03 15:19:53 2014
 
-@author: palmiteradmin
+@author: Michael Patterson, Palmiter lab, (map222@uw.edu)
 
 Basic plotting functions
 """
-
 
 import numpy as np
 import pdb
 import matplotlib.pyplot as plt
 import math
 
-def plot_hist_firingrate(bins, firingrates, labels = ' ', firing_sem = []):  
-    if labels == ' ':
+def plot_hist_firingrate(bins, firing_rates, labels = ' ', firing_sem = []):
+    ''' Plots a histogram of spike firing rates
+    
+    Arguments:
+    bins: bins of histogram to be used as timepoints for x-axis
+    firing_rates: N x (size(bins)) array of firing rates for different neurons
+    labels: Labels for the neurons to be used in legends
+    firing_sem: error bars to be used in plotting
+    '''
+    
+    if labels == ' ':  # if no labels passed in, just generate generic labels
         labels = [str(i) for i in range(len(bins)) ]
+    if np.shape(firing_sem)[0] == 0:
+        firing_sem = np.zeros(np.shape(firing_rates))
     
     # setup
     bins2 = bins[:-1] + (bins[1]-bins[0])/2 # offset bins to center them
@@ -27,7 +37,7 @@ def plot_hist_firingrate(bins, firingrates, labels = ' ', firing_sem = []):
     rate_conversion = 1# bins[1] - bins[0] #use bins to convert to firing rate
     
     # plot all the firing rates
-    for i, rows in enumerate(firingrates):
+    for i, rows in enumerate(firing_rates):
         #rows = np.convolve(rows, [0.25, 0.5, 0.25], mode = 'same')    
         ax.errorbar(bins2, rows / rate_conversion, yerr = firing_sem[i,:] / rate_conversion,
             label = labels[i], linewidth = math.ceil((i+4 )/ len(colorj)), color = colorj[i%len(colorj)])
@@ -35,7 +45,6 @@ def plot_hist_firingrate(bins, firingrates, labels = ' ', firing_sem = []):
     plt.legend(frameon = False)
     prettify_axes(ax)    
     
-
     plt.xlabel('Time (sec)', fontsize = 18)
     plt.ylabel('Spikes / trial', fontsize = 18)
     plt.show()
