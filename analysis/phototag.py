@@ -55,15 +55,35 @@ inhib_cells = [['150129A', 2, 0, 79],
                ['150212C', 1, 200, 399],
                ['150206A', 2, 0, 199],        
                ['150306A', 1, 0, 199]]
+               
+figure_cells = [['150327A', 1, 0, 199], # solid feeding
+                ['150330B', 3, 0, 199], # CCK
+                ['150402A', 2, 0, 199], # ensure
+                ['150406A', 3, 0, 199], # hotplate
+                ['150713B', 2, 0, 199], # CCK
+                ['150731A', 0, 0, 199], # solid feeding
+                ['150803B', 0, 0, 199], # CCK
+                ['150805A', 1, 0, 199], # ensure
+                ['150812C', 0, 0, 99], # CCK
+                ['150813A', 0, 0, 99],
+                #150814Y
+                ['150819A', 0, 0, 99],
+                ['150819A', 1, 0, 99],
+                #150818Y
+                ['150826B', 2, 0, 99],
+                ['150827A', 2, 0, 99],
+                ['150902A', 3, 0, 99],
+                ['150902A', 4, 0, 99],
+                ['150921B', 0, 0, 49],
+                ['150923B', 0, 0, 49],
+              ]
 
 class PhototagData:
     """ A class used to store phototag data, including spike times, laser times, and metrics """
     def __init__(self):
-        # cell info in format of: name, cell_id, trial_start, trial_end
         self.spike_times = []
         self.laser_times = []
         
-    # load the data from the .plx files; cell id info is declared in the __init__
     def load_data(self, cell_list):
         
         self.cell_info = cell_list
@@ -87,7 +107,7 @@ class PhototagData:
         
 
 def calc_phototag_metrics(phototag_data):
-    """ phototagData is an MPNeuroData class with data already loaded in
+    """ phototagData is an PhototagData class with data already loaded in
         This function will calculate the metrics for determing whether a cell is phototagged:
         mean latency and jitter of first spike
         timing of average firing rate > mean + 3SD
@@ -166,14 +186,14 @@ def calc_firing_changes(cur_laser_times, pre_spikes, post_spikes, bins, binwidth
     return excite_latency, inhib_latency
 
 
+import MPNeuro.analysis.raster_spike_laser as rsl
 def align_pre_post_spikes(spiketrain, cur_laser_times, start_time, end_time):
     """ Align spike times to laser pulses
         return times before and after zero, within start_time and end_time """
-    import MPNeuro.analysis.raster_spike_laser as rsl
     reload(rsl)
     
     # get aligned spikes; need to do weird [] around spike_times due to how rsl works
-    aligned_spikes = rsl.raster_spike_laser(spiketrain, cur_laser_times, rast_start = -1, rast_end = 1, plot = False)
+    aligned_spikes = rsl.raster_spike_laser(spiketrain, cur_laser_times, rast_start = -1, rast_end = 1, plot_flag = False)
     
     # get the pre-light spikes, then calculate the mean ISI to get predicted first post-light spike time
     pre_spikes = map(lambda x: rsl.window_spike_times(x, start_time, 0), aligned_spikes)
@@ -197,7 +217,7 @@ def get_first_spike_metrics(post_spikes):
     for cur_index, cur_spikes in enumerate(post_spikes):
         # make sure there are spikes in that trial, and that they are near the light
         if np.size(cur_spikes>0):
-            if cur_spikes[0] < 0.03: # such ghetto nested ifs ; make sure first spike is around light
+            if cur_spikes[0] < 0.015: # such ghetto nested ifs ; make sure first spike is around light
                 first_spikes[cur_index] = cur_spikes[0]
                 continue
         first_spikes[cur_index] = np.NaN # if no spikes there, assign NaN

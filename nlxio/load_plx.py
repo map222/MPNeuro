@@ -22,10 +22,10 @@ def load_spike_times(filename):
     unitinfo = []
     
     # open the csv
-    csvfile =  open(filename+'.csv')
-    csvreader = csv.reader(csvfile)
-    for row in csvreader:
-        unitinfo.append(map(int, row)) # unit info is list of [electrode, unit] pairs
+    with open(filename+'.csv') as csvfile:
+        csvreader = csv.reader(csvfile)
+        for row in csvreader:
+            unitinfo.append(map(int, row)) # unit info is list of [electrode, unit] pairs
     
     # open the plexon file
     reader = neo.io.PlexonIO(filename = filename+'.plx')

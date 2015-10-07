@@ -61,12 +61,12 @@ def verify_directory(filename):
 def extract_waveform_at_timestamp(wideband, timestamps, sample_range = [9, 22], sampling_freq = 32000):
     ''' Extracts the spike waveforms from the wideband data at specific times
     
-    Arguments:
-    wideband: wideband data from a tetrode, probably loaded in by nlxio...load_nlx
-    time_stamps: a single numpy array of timestamps in units of seconds
-    sample_range: number of samples before and after an event (units of samples)
-        -both values should be positive!
-    sampling_freq: sampling rate for acquisition
+    | Arguments:
+    | wideband: wideband data from a tetrode, probably loaded in by nlxio...load_nlx
+    | time_stamps: a single numpy array of timestamps in units of seconds
+    | sample_range: number of samples before and after an event (units of samples)
+    |    -both values should be positive!
+    | sampling_freq: sampling rate for acquisition
     '''
 
     # check validity of inputs

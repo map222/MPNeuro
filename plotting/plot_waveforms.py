@@ -17,15 +17,21 @@ import pdb
 def load_plot_tagged_waveforms( tetrode, event_times, spike_times ):
     ''' Load wideband data, cutout waveforms you care about, and then plot them
     
-    Arguments:
-    tetrode: number of the tetrode you care about (tetrode 1 = channels 1-4)
-    event_times: 1 x N np.array of event_stamps
-    spike_times: SpikeTrain array
+    | Arguments:
+    | tetrode: number of the tetrode you care about (tetrode 1 = channels 1-4)
+    | event_times: 1 x N np.array of event_stamps
+    | spike_times: SpikeTrain array
+    | 
+    | Returns:
+    | tagged_waveforms, spont_waveforms: waveforms from all 4 electrode on a tetrode
+    |
+    | Usage:
+    | a814z_tagged, a814z_spont = pw.load_plot_tagged_waveforms(1, b814z, a814z[2])
     '''
     
     if hasattr(spike_times, 'unit'): # if spike_times is a SpikeTrain variable, convert to nd.array
         spike_times = np.array(spike_times)
-    
+
     # load wideband
     channel_range = [(tetrode-1)*4 +1, tetrode*4]
     wideband = nlxio.nlx_to_dat.load_nlx(channel_range)
@@ -80,7 +86,7 @@ def plot_cutout(timepoints, cutout):
     for i in range(num_electrodes):
         plt.subplot(num_electrodes, 1, i+1)
         plt.plot(timepoints*1000, cutout[:,i] / 1000, linewidth = lw, color = 'grey')
-        
+
 def assign_timestamp_type(event_stamps, spike_times, window = 0.01):
     ''' Assign spike timestamps into two categories depending on whether spikes occur just after an event
     
@@ -99,7 +105,7 @@ def assign_timestamp_type(event_stamps, spike_times, window = 0.01):
     untagged_spike_times = spike_times[~tagged_mask]
         
     return tagged_spike_times, untagged_spike_times
-    
+
 def calc_is_tagged(event_stamps, spike_time, window = 0.01):
     ''' Function to see whether a single spike is just after any of the events in eventstamps
     
@@ -113,4 +119,4 @@ def calc_is_tagged(event_stamps, spike_time, window = 0.01):
     if event_check_index == -1:
         return False
     else:
-        return spike_time - event_stamps[event_check_index] < window # return true if it's close
+        return (spike_time - event_stamps[event_check_index]) < window # return true if it's close
