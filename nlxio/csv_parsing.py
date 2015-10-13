@@ -9,11 +9,13 @@ from __future__ import division
 import csv
 import numpy as np
 import MPNeuro.nlxio.helper_functions as hf
+import logging
 
 def parse_feedtimes_csv(csv_name):
     ''' Load a feedtimes csv which contains 3 columns separated by spaces:
         "x" mmss mmss
-        filename: prefix of feeding filename (.csv is added later), e.g. '150812A feeding'
+        
+        csv_name: string prefix of feeding filename (.csv is added later), e.g. '150812A feeding'
         returns 3 arrays: feed_times, water_times, and bed_times
     '''
     
@@ -22,6 +24,9 @@ def parse_feedtimes_csv(csv_name):
     # make sure I am in the directory with the feeding.csv file
     hf.verify_directory(csv_name + '.csv')
     
+    logging.basicConfig(filename = 'csv_parse.log', level = logging.DEBUG)
+    logging.info('Parsing csv: ' + csv_name)
+        
     # open the file and start parsing!
     with open(csv_name+'.csv') as csv_file:
         csv_reader = csv.reader(csv_file, quoting=csv.QUOTE_NONNUMERIC, delimiter = ' ')

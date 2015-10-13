@@ -23,7 +23,7 @@ def plot_spikes_feed_times( spike_times, exp_name , time_range = []):
     """
     
     # plot the spike times
-    fig, spike_hist = plot_spikes(spike_times, time_range)
+    ax, spike_hist = plot_spikes(spike_times, time_range)
     
     feed_times, water_times, bed_times = cp.parse_feedtimes_csv( exp_name + ' feeding')
     
@@ -32,13 +32,13 @@ def plot_spikes_feed_times( spike_times, exp_name , time_range = []):
     water_times_min = np.array(water_times) / 60
     bed_times_min = np.array(bed_times) / 60
     
+    plt.sca(ax)
     for feed_time in feed_times_min:
         plt.axvspan(feed_time[0], feed_time[1], facecolor =  'k', alpha = 0.15)
     for w in water_times_min:
         plt.axvspan(w[0], w[1], facecolor = 'b', alpha = 0.15)
     for b in bed_times_min:
         plt.axvspan(b[0], b[1], facecolor = 'r', alpha = 0.15)
-    fig.canvas.manager.window.raise_()
 
     return spike_hist, np.corrcoef(spike_hist)
     
@@ -50,7 +50,7 @@ def plot_spikes_heat( spike_times, exp_name , time_range = []):
         time_range is pair of [start, stop] times in seconds
     """
     
-    fig, spike_hist = plot_spikes(spike_times, time_range)
+    ax, spike_hist = plot_spikes(spike_times, time_range)
     
     reload(cp)
     
@@ -81,7 +81,7 @@ def plot_spikes(spike_times, time_range = []):
     bins = np.array(range(time_range[0], time_range[1], binwidth))
     colorj = ['g', 'b', 'k', 'r']
     
-    fig = plt.figure(figsize = [12, 6])
+    fig = plt.figure( figsize = [12, 6])
     ax = fig.add_subplot(1,1,1)
     for i, curspikes in enumerate( spike_times):
         temp, nothing = np.histogram(curspikes, bins=bins)
@@ -96,4 +96,4 @@ def plot_spikes(spike_times, time_range = []):
     
     MP_plot.prettify_axes(ax)  
     plt.xlim(time_range[0]/60, time_range[1]/60)
-    return fig, spike_hist
+    return ax, spike_hist
