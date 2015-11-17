@@ -3,6 +3,11 @@
 # C extensions
 *.so
 
+*.svg
+*.png
+
+\.ipynb_checkpoints
+
 # Packages
 *.egg
 *.egg-info

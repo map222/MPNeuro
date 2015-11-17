@@ -8,6 +8,7 @@ Created on Tue Mar 04 18:02:30 2014
 import neo
 import csv
 import pdb
+import MPNeuro.nlxio.helper_functions as hf
 
 def load_spike_times(filename):
     """
@@ -19,13 +20,9 @@ def load_spike_times(filename):
     Spiketrains         A unit x time array
     Unitinfo            The stuff from the csv
     """
-    unitinfo = []
     
-    # open the csv
-    with open(filename+'.csv') as csvfile:
-        csvreader = csv.reader(csvfile)
-        for row in csvreader:
-            unitinfo.append(map(int, row)) # unit info is list of [electrode, unit] pairs
+    hf.verify_directory(filename+ '.plx')
+    unitinfo = load_unit_info(filename)    
     
     # open the plexon file
     reader = neo.io.PlexonIO(filename = filename+'.plx')
@@ -44,3 +41,18 @@ def load_spike_times(filename):
     
     return spiketrains, unitinfo
     
+def load_unit_info(filename):
+    """
+    Load in the unit csv file
+    """
+    
+    hf.verify_directory(filename+ '.csv')
+    unitinfo = []
+    
+    # open the csv
+    with open(filename+'.csv') as csvfile:
+        csvreader = csv.reader(csvfile)
+        for row in csvreader:
+            unitinfo.append(map(int, row)) # unit info is list of [tetrode, unit] pairs
+    
+    return unitinfo

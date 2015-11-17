@@ -13,8 +13,9 @@ import bisect
 import matplotlib.pyplot as plt
 import MPNeuro.nlxio as nlxio
 import pdb
+import MPNeuro.plotting as MP_plot
 
-def load_plot_tagged_waveforms( tetrode, event_times, spike_times ):
+def load_plot_tagged_waveforms( tetrode, event_times, spike_times, plot_flag = True ):
     ''' Load wideband data, cutout waveforms you care about, and then plot them
     
     | Arguments:
@@ -43,16 +44,27 @@ def load_plot_tagged_waveforms( tetrode, event_times, spike_times ):
     tagged_waveforms = nlxio.helper_functions.extract_waveform_at_timestamp(wideband, tagged)
     spont_waveforms = nlxio.helper_functions.extract_waveform_at_timestamp(wideband, spont)
     
+    # subtract baseline
+    tagged_offset = np.apply_over_axes(np.mean, tagged_waveforms, axes = [0,1])[0][0]
+    tagged_waveforms-= tagged_offset
+    spont_offset = np.apply_over_axes(np.mean, spont_waveforms, axes = [0,1])[0][0]
+    spont_waveforms-= spont_offset
+    
+    # align the tagged waveforms
+    print('Aligning tagged spikes')
+    tagged_waveforms = align_tagged_spont(tagged_waveforms, spont_waveforms)
+    
     # plot the tagged and spontaneous spikes
-    tagged_fig = plot_all_cutouts(tagged_waveforms)
-    tagged_fig.suptitle('Tagged waveforms')
-    spont_fig = plot_all_cutouts(spont_waveforms)    
-    spont_fig.suptitle('Spontaneous waveforms')
+    if plot_flag:
+        tagged_fig = plot_all_cutouts(tagged_waveforms)
+        tagged_fig.suptitle('Tagged waveforms', fontsize = 18)
+        spont_fig = plot_all_cutouts(spont_waveforms)    
+        spont_fig.suptitle('Spontaneous waveforms', fontsize = 18)
     
     return np.array(tagged_waveforms), np.array(spont_waveforms)
 
 def plot_all_cutouts(cutouts, num_pre = 9, num_plot = 100, sampling_freq = 32000):
-    ''' Plots a list of tetrode waveform cutouts
+    ''' Plots a list of     ode waveform cutouts
     
     Arguments:
     cutouts: N x m x 4 matrix of cutout waveforms, where N is number of timestamps, and m is width of cutout
@@ -70,12 +82,11 @@ def plot_all_cutouts(cutouts, num_pre = 9, num_plot = 100, sampling_freq = 32000
     num_electrodes = np.shape(cutouts)[2]
     
     # plot stuff
-    fig = plt.figure(figsize = [5, 7])
+    fig = plt.figure(figsize = [7, 10])
     ax = fig.add_subplot(4,1,1)
     map(lambda x: plot_cutout(timepoints, x), cutouts[0:num_plot])
     plt.subplot(num_electrodes, 1, num_electrodes)
-    plt.xlabel('Time (ms)')
-    #pdb.set_trace()
+    plt.xlabel('Time (ms)', fontsize = 16)
     
     return fig
 
@@ -86,6 +97,7 @@ def plot_cutout(timepoints, cutout):
     for i in range(num_electrodes):
         plt.subplot(num_electrodes, 1, i+1)
         plt.plot(timepoints*1000, cutout[:,i] / 1000, linewidth = lw, color = 'grey')
+        MP_plot.prettify_axes(plt.gca())
 
 def assign_timestamp_type(event_stamps, spike_times, window = 0.01):
     ''' Assign spike timestamps into two categories depending on whether spikes occur just after an event
@@ -120,3 +132,21 @@ def calc_is_tagged(event_stamps, spike_time, window = 0.01):
         return False
     else:
         return (spike_time - event_stamps[event_check_index]) < window # return true if it's close
+        
+def align_tagged_spont(tagged_waveforms, spont_waveforms):
+    """ the tagged spikes, for whatever reason, may not be aligned correctly; align them all
+        to the maximum of the spontaneous waveforms
+       
+       Parameters:
+       tagged_waveforms: 3D numpy array of waveform shape for tagged spikes
+       spont_waveforms: 3D numpy array of waveform shape for spontaneous spikes
+    """
+    spont_max_index = int(np.argmax( np.mean(np.abs(spont_waveforms), axis = 0))/4)
+    def calc_waveform_max(cur_waveform):
+        centered_waveform = cur_waveform[spont_max_index-6:spont_max_index+6, :]
+        return int(np.argmax( np.abs(centered_waveform) ) / 4) + spont_max_index-6
+    tagged_offsets = list(map(calc_waveform_max, tagged_waveforms))
+    offset_tagged_waveforms = []
+    for i, cur_waveform in enumerate(tagged_waveforms):
+        offset_tagged_waveforms.append( np.roll(cur_waveform, -tagged_offsets[i]+spont_max_index, axis = 0))
+    return offset_tagged_waveforms

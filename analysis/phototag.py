@@ -72,6 +72,7 @@ figure_cells = [['150327A', 1, 0, 199], # solid feeding
                 #150818Y
                 ['150826B', 2, 0, 99], # CCK
                 ['150827A', 2, 0, 99], # ensure
+                ['150828A', 0, 0, 99], # ensure
                 ['150902A', 3, 0, 99], # solid feeding
                 ['150902A', 4, 0, 99], # solid feeding
                 ['150921B', 0, 0, 49], # CCK
@@ -303,3 +304,26 @@ def table_all_cells(phototag_data):
                 str.format('{0:.2g}', phototag_data.std_first_spike[i]) + '  ' + 
                 str.format('{0:.2g}', phototag_data.first_firing_above_mean[i]) + '  ' +
                 str.format('{0:.2g}', phototag_data.failure_rate[i]) + '\n' )
+
+import MPNeuro.nlxio.load_plx as lp
+import MPNeuro.plotting.plot_waveforms as pw
+from scipy.stats.stats import pearsonr
+def calc_pearson_tag_spont(cell_info, plot_flag = False):
+    """ cell_info is a list that comes from a Phototag class; it has four members:
+    [0]: cell_name
+    [1]: cell_id
+    [2]: start of phototag stim
+    [3]: end of phototag stim
+    """
+    #pdb.set_trace()
+    cur_exp = hf.load_analyzed_exp(cell_info[0], False)
+    cell_id = cell_info[1]
+    laser_times = cur_exp['laser_times'][cell_info[2]:cell_info[3]]
+    
+    unitinfo = lp.load_unit_info(cell_info[0])
+    tetrode = unitinfo[cell_id][0]
+    
+    tagged, untagged = pw.load_plot_tagged_waveforms(tetrode, laser_times, cur_exp['spike_times'][cell_id], plot_flag)
+    mean_tagged = np.mean(tagged, axis = 0)
+    mean_spont = np.mean(untagged, axis = 0)
+    return pearsonr(mean_tagged.ravel(), mean_spont.ravel())[0]

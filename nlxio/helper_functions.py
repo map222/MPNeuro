@@ -9,6 +9,8 @@ from __future__ import division
 import pdb
 import bisect
 import numpy as np
+import MPNeuro.nlxio.load_plx as lp
+import MPNeuro.nlxio.event_handling as eh
 
 # load spiketimes and event times for an experiment with a complete *.plx
 def load_analyzed_exp(filename, bool_histogram = False):
@@ -18,13 +20,9 @@ def load_analyzed_exp(filename, bool_histogram = False):
     filename: string of the experiment number, format MPYYMMDDX   ; .plx is added by function
         -for standard names like MP150812B, can be run in any directoy; for non-standard, needs to be in directory
     '''
-    
-    verify_directory(filename+ '.plx')
-    
-    import MPNeuro.nlxio.load_plx as lp
+        
     spike_times = lp.load_spike_times(filename)[0] # extra [0] for funky indexing
     
-    import MPNeuro.nlxio.event_handling as eh
     laser_times = eh.load_nev()[0]
     
     binned_spikes = []
@@ -58,7 +56,7 @@ def verify_directory(filename):
          print('Cannot find data directory')
 
 
-def extract_waveform_at_timestamp(wideband, timestamps, sample_range = [9, 22], sampling_freq = 32000):
+def extract_waveform_at_timestamp(wideband, timestamps, sample_range = [9, 20], sampling_freq = 32000):
     ''' Extracts the spike waveforms from the wideband data at specific times
     
     | Arguments:
