@@ -23,7 +23,7 @@ def raster_spike_laser(spike_times, laser_list, rast_start = -0.1, rast_end = 0.
     plot_flag: whether to plot the raster, or simply return the results
     '''
     
-    assert np.shape(spike_times)[0] == 1, 'spike_times must be a single SpikeTrain array, not a matrix'
+    #assert np.shape(spike_times)[0] == 1, 'spike_times must be a single SpikeTrain array, not a matrix'
 
     # aligned_spikes is a list of numpy arrays
     aligned_spikes = [np.array(0) for a in enumerate(laser_list)]

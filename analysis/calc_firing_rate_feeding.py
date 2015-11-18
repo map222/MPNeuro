@@ -13,7 +13,45 @@ from __future__ import division
 import numpy as np
 import pdb
 #import MPNeuro.nlxio.helper_functions as hf
-    
+
+      # list of experiments to go through
+CCK_cells = [['150330B', 3],
+             ['150713B', 2],
+             ['150803B', 0],
+             ['150812C', 0],
+             ['150826B', 2],
+             ['150921B', 0]]
+feeding_cells = [['150327A', 1],
+                 ['150731A', 0],
+                 ['150814A', 2],
+                 ['150902A', 3],
+                 ['150902A', 4]]
+ensure_cells = [['150402A', 2],
+                ['150819A', 0],
+                ['150819A', 1],
+                #150819Y
+                ['150827A', 2],
+                ['150923B', 1]]  
+                
+feeding_other_cells = [['150327A2', 0],
+                       ['150731A', 4],
+                       ['150814A', 3], # units 0 & 1 may be weakly phototagged
+                       ['150902A', 2]] # unit 1 is weakly phototagged
+CCK_other_cells = [['150330B', 4],
+                   ['150803B2', 0],
+                   ['150803B2', 2],
+                   ['150803B2', 3],
+                   ['150812C2', 2],
+                   ['150812C2', 3],
+                   ['150826B', 2],
+                   ['150921B', 1],
+                   ['150921B2', 0],
+                   ['150921B2', 1]]
+ensure_other_cells = [['150402A2', 0],
+                      ['150827A', 0],
+                      ['150923B', 2],
+                      ['150923B', 3]]
+                      
 def calc_all_feeding_metrics( all_exp_dict):
     """ Calculate metrics for feeding, specifically
         Baseline firing rate for hungry vs fed
@@ -24,60 +62,24 @@ def calc_all_feeding_metrics( all_exp_dict):
         all_exp is a dictionary of experiments
         This can be found in the iPython notebook for these analyses in the python 2.7 folder
     """
-    # list of experiments to go through
-    CCK_cells = [['150330B', 3],
-                 ['150713B', 2],
-                 ['150803B', 0],
-                 ['150812C', 0],
-                 ['150826B', 2],
-                 ['150921B', 0]]
-    feeding_cells = [['150327A', 1],
-                     ['150731A', 0],
-                     ['150814A', 2],
-                     ['150902A', 3],
-                     ['150902A', 4]]
-    ensure_cells = [['150402A', 2],
-                    ['150819A', 0],
-                    ['150819A', 1],
-                    #150819Y
-                    ['150827A', 2],
-                    ['150923B', 1]]
                     
     hungry_rates, fed_rates = calc_hungry_vs_fed(all_exp_dict, feeding_cells, CCK_cells)
-    pre_cck, post_cck = calc_cck_changes(all_exp_dict, CCK_cells)
+    pre_cck, post_cck, cck_pvalue = calc_cck_changes(all_exp_dict, CCK_cells)
     non_eat_rates, eat_rates = calc_feed_change_all(all_exp_dict, feeding_cells)
     non_ensure, ensure = calc_feed_change_all(all_exp_dict, ensure_cells)
     
-    return hungry_rates, fed_rates, pre_cck, post_cck, non_eat_rates, eat_rates, non_ensure, ensure
-
+    return hungry_rates, fed_rates, pre_cck, post_cck, cck_pvalue, non_eat_rates, eat_rates, non_ensure, ensure
+    
 def calc_other_feeding_metrics(all_exp_dict):
     """ Same as calc_all_feeding_metrics, except for non phototagged cells
     """
-    feeding_other_cells = [['150327A2', 0],
-                           ['150731A', 4],
-                           ['150814A', 3], # units 0 & 1 may be weakly phototagged
-                           ['150902A', 2]] # unit 1 is weakly phototagged
-    CCK_other_cells = [['150330B', 4],
-                       ['150803B2', 0],
-                       ['150803B2', 2],
-                       ['150803B2', 3],
-                       ['150812C2', 2],
-                       ['150812C2', 3],
-                       ['150826B', 2],
-                       ['150921B', 1],
-                       ['150921B2', 0],
-                       ['150921B2', 1]]
-    ensure_other_cells = [['150402A2', 0],
-                          ['150827A', 0],
-                          ['150923B', 2],
-                          ['150923B', 3]]
-                          
+    
     hungry_rates, fed_rates = calc_hungry_vs_fed(all_exp_dict, feeding_other_cells, CCK_other_cells)
-    pre_cck, post_cck = calc_cck_changes(all_exp_dict, CCK_other_cells)
+    pre_cck, post_cck, cck_pvalue = calc_cck_changes(all_exp_dict, CCK_other_cells)
     non_eat_rates, eat_rates = calc_feed_change_all(all_exp_dict, feeding_other_cells)
     non_ensure, ensure = calc_feed_change_all(all_exp_dict, ensure_other_cells)
     
-    return hungry_rates, fed_rates, pre_cck, post_cck, non_eat_rates, eat_rates, non_ensure, ensure
+    return hungry_rates, fed_rates, pre_cck, post_cck, cck_pvalue, non_eat_rates, eat_rates, non_ensure, ensure
     
 def calc_hungry_vs_fed(all_exp_dict, hungry_cells, fed_cells):
     """ Calculate the firing rate for paired locations when mice are hungry vs fed. By "paired locations"
@@ -90,7 +92,14 @@ def calc_hungry_vs_fed(all_exp_dict, hungry_cells, fed_cells):
     hungry_rates = [calc_fire_rate_wrap(all_exp_dict, x) for x in hungry_cells]
     fed_rates = [calc_fire_rate_wrap(all_exp_dict, x) for x in fed_cells]
     
-    return hungry_rates, fed_rates
+    pre_rates = list(zip(*hungry_rates)[0])
+    post_rates = list(zip(*fed_rates)[0])
+
+    pvalue = []
+    for i in range(len(hungry_rates)):
+        pvalue.append( c_test( hungry_rates[i][0], fed_rates[i][0], hungry_rates[i][1], fed_rates[i][1] ) )
+        
+    return pre_rates, post_rates
 
 def calc_fire_rate_wrap(all_exp_dict, cell_info, time_range = [0, 300]):
     """ Calculates the firing rate in a time_range for an experiment
@@ -111,20 +120,27 @@ def calc_fire_rate_epoch(spike_times, epoch_times):
     for time_pairs in epoch_times:
         total_spikes += np.size( spike_times[(spike_times > time_pairs[0] ) & (spike_times < time_pairs[1] ) ])
         total_time   += time_pairs[1] - time_pairs[0]
-    return total_spikes / total_time
+    return [total_spikes / total_time, total_time]
 
 def calc_cck_changes(all_exp_dict, cck_cells):
     """ Calculate pre-CCK firing vs late cck firing """
     
-    pre_cck = [calc_fire_rate_wrap(all_exp_dict, x, [120, 420]) for x in cck_cells] # from 1-6 min.
-    post_cck = [calc_fire_rate_wrap(all_exp_dict, x, [840, 1020]) for x in cck_cells] # from 20-30 min
+    pre_cck = [calc_fire_rate_wrap(all_exp_dict, x, [120, 540]) for x in cck_cells] # from 2-7 min.
+    post_cck = [calc_fire_rate_wrap(all_exp_dict, x, [720, 1040]) for x in cck_cells] # from 14-19 min
     
-    return pre_cck, post_cck
+    pre_rates = list(zip(*pre_cck)[0])
+    post_rates = list(zip(*post_cck)[0])
+
+    pvalue = []
+    for i in range(len(pre_cck)):
+        pvalue.append( c_test( pre_cck[i][0], post_cck[i][0], pre_cck[i][1], post_cck[i][1] ) )
+    
+    return pre_rates, post_rates, pvalue
 
 def calc_feed_change_all(all_exp_dict, feeding_cells):
     """ Calculate the feeding changes for all experiments """
     return zip(*[calc_feed_changes_wrapper(all_exp_dict, x) for x in feeding_cells] )
-     
+
 import MPNeuro.nlxio.csv_parsing as cp
 def calc_feed_changes_wrapper(all_exp_dict, cell_info):
     reload(cp)
@@ -133,8 +149,8 @@ def calc_feed_changes_wrapper(all_exp_dict, cell_info):
     
     feed_times, water_times, bed_times = cp.parse_feedtimes_csv( cell_info[0] + ' feeding')
     avg_nonfeed_rate, avg_feed_rate =  calc_feed_changes(cur_exp['spike_times'][cell_id], feed_times, [600, 3600])  
-    return avg_nonfeed_rate, avg_feed_rate
-    
+    return avg_nonfeed_rate[0], avg_feed_rate[0]
+
 def calc_feed_changes(spike_times, feed_times, time_range ):
     """ spike_times is one neuron's spike times
         feeding_times is a N X 2 matrix of epochs when mouse was feeding (units of seconds)
@@ -152,3 +168,15 @@ def calc_feed_changes(spike_times, feed_times, time_range ):
     avg_nonfeed_rate = calc_fire_rate_epoch(spike_times, nonfeed_times)
            
     return avg_nonfeed_rate, avg_feed_rate
+    
+def c_test(mu1, mu2, n1, n2):
+    """ Poisson conditional test: test whether mean firing rate is different
+    
+    Arguments: spikes1 and spikes2 are lists of binned spikes
+    """
+    if mu1 ==0:
+        mu1 = 0.001
+    if mu2 ==0:
+        mu2 = 0.001
+    
+    return ( n1 / n2) * (mu1 / mu2) / (1 + (n1 / n2) * (mu1 / mu2))

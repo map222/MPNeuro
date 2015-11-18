@@ -76,7 +76,7 @@ figure_cells = [['150327A', 1, 0, 199], # solid feeding
                 ['150902A', 3, 0, 99], # solid feeding
                 ['150902A', 4, 0, 99], # solid feeding
                 ['150921B', 0, 0, 49], # CCK
-                ['150923B', 0, 0, 49], # ensure
+                ['150923B', 1, 100, 199], # ensure
               ]
 
 class PhototagData:
@@ -113,7 +113,7 @@ def calc_phototag_metrics(phototag_data):
         mean latency and jitter of first spike
         timing of average firing rate > mean + 3SD
         and inhibitory timing """
-    binwidth = 0.002
+    binwidth = 0.001
     start_time = -1
     end_time = -1 * start_time # end_time should be symmetric with start_time
     bins = np.arange(start_time, end_time+binwidth, binwidth) # bins used for histogram
@@ -162,11 +162,12 @@ def calc_firing_changes(cur_laser_times, pre_spikes, post_spikes, bins, binwidth
     pre_hist  = np.histogram(all_pre_spikes,  bins)[0] / num_trials
     pre_hist_smooth = np.convolve(pre_hist, [0.25, 0.5, 0.25], mode = 'same')    # smoothing
     post_hist = np.histogram(all_post_spikes, bins)[0] / num_trials
+    post_hist_smooth = np.convolve(post_hist, [0.25, 0.5, 0.25], mode = 'same')    # smoothing
     mean_pre_hist = np.mean(pre_hist_smooth[:(num_bins/2)], axis = 0) # set minimum threshold of 3 Hz
     min_threshold = max([mean_pre_hist, 3*binwidth])
     std_pre_spikes = np.std(pre_hist_smooth)
 
-    above_threshold = np.where(post_hist[(num_bins/2):] > min_threshold + std_pre_spikes*3)
+    above_threshold = np.where(post_hist_smooth[(num_bins/2):] > min_threshold + std_pre_spikes*3)
     if np.size(above_threshold) == 0: # if no points above threshold, return nan
         excite_latency = np.nan
     else:
@@ -175,16 +176,15 @@ def calc_firing_changes(cur_laser_times, pre_spikes, post_spikes, bins, binwidth
     # this code finds the indices of all times where cell was inhibited, then searches for 3 consecutive timepoints
     inhib_latency = np.nan
     
-    post_hist = np.convolve(post_hist, [0.25, 0.5, 0.25], mode = 'same')    # smoothing
     if mean_pre_hist > 0.01: # only look for inhibition if basal rate is 5Hz (this may be unnecessary with more trials)
-        subthreshold = np.where(post_hist[(num_bins/2):] < (mean_pre_hist - std_pre_spikes / 2)/ 2)
+        subthreshold = np.where(post_hist_smooth[(num_bins/2):] < (mean_pre_hist - std_pre_spikes / 2)/ 2)
         sub_diff = np.diff(subthreshold)[0]
         for i, k in enumerate(sub_diff[:-2]):
             if k == 1 & sub_diff[i+1] ==1 & sub_diff[i+2] == 1:
                 inhib_latency = subthreshold[0][i] * binwidth
                 break
             
-    return excite_latency, inhib_latency
+    return excite_latency + binwidth / 2, inhib_latency + binwidth / 2
 
 
 import MPNeuro.analysis.raster_spike_laser as rsl
@@ -218,7 +218,7 @@ def get_first_spike_metrics(post_spikes):
     for cur_index, cur_spikes in enumerate(post_spikes):
         # make sure there are spikes in that trial, and that they are near the light
         if np.size(cur_spikes>0):
-            if cur_spikes[0] < 0.015: # such ghetto nested ifs ; make sure first spike is around light
+            if cur_spikes[0] < 0.012: # such ghetto nested ifs ; make sure first spike is around light
                 first_spikes[cur_index] = cur_spikes[0]
                 continue
         first_spikes[cur_index] = np.NaN # if no spikes there, assign NaN
@@ -230,19 +230,26 @@ def get_first_spike_metrics(post_spikes):
     
     return mean_first_spike, std_first_spike, failure_rate
     
-    
+
+import matplotlib
 def plot_phototag_data(phototag_data):
     """ phototagData is an MPNeuroData class; this function assumes
         This function will display various metrics for whether a cell is phototagged """
-        
+    
+    font = {'family' : 'normal',
+        'weight' : 'normal',
+        'size'   : 18}
+
+    matplotlib.rc('font', **font)  
+    
     mask = phototag_data.good_cell_mask
-    fig1 = plt.figure(figsize = [11, 8])
+    fig1 = plt.figure(figsize = [12, 9])
     ax1 = fig1.add_subplot(2,2,1)
     plt.plot(mask * phototag_data.mean_first_spike * 1000, mask * phototag_data.mean_pre_isi * 1000, 'o')
     plt.plot(~mask * phototag_data.mean_first_spike * 1000, ~mask * phototag_data.mean_pre_isi * 1000, 'sr')
     plt.plot([0, 50], [0, 50])
     plt.ylabel('Expected spike time')
-    plt.xlabel('Mean first spike latency with light (ms)')
+    plt.xlabel('Mean first spike latency (ms)')
     MP_plot.prettify_axes(ax1)
     
     # first spike latency and jitter
@@ -257,9 +264,9 @@ def plot_phototag_data(phototag_data):
     # first spike latency vs signal detection
     ax3 = fig1.add_subplot(2,2,3)
     plt.plot(phototag_data.mean_first_spike * 1000, phototag_data.first_firing_above_mean *1000, 'o')
-    plt.plot([0, 20], [0, 30])
+    #plt.plot([0, 20], [0, 30])
     plt.xlabel('Mean first spike latency (ms)')
-    plt.ylabel('Latency for avg firing rate > mean + 3SD (ms)')
+    plt.ylabel('Latency for\n firing rate > mean + 3SD (ms)')
     MP_plot.prettify_axes(ax3)
     
     # first spike latency vs signal detection
