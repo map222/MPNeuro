@@ -6,7 +6,6 @@ Created on Wed Mar 05 17:40:55 2014
 """
 from __future__ import division
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
 import math
 import MPNeuro.nlxio.csv_parsing as cp
@@ -21,6 +20,8 @@ def plot_spikes_feed_times( spike_times, exp_name , time_range = []):
     exp_name is a string of format YYMMDDX for experiment name
     time_range is pair of [start, stop] times in seconds
     """
+    
+    assert len(spike_times) < 50, 'spike_times should be an Nx M SpikeTimes object'
     
     # plot the spike times
     ax, spike_hist = plot_spikes(spike_times, time_range)

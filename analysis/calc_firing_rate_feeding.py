@@ -12,6 +12,7 @@ ensure, and hungry chow eating)
 from __future__ import division
 import numpy as np
 import pdb
+import scipy.stats as stats
 #import MPNeuro.nlxio.helper_functions as hf
 
       # list of experiments to go through
@@ -51,7 +52,7 @@ ensure_other_cells = [['150402A2', 0],
                       ['150827A', 0],
                       ['150923B', 2],
                       ['150923B', 3]]
-                      
+
 def calc_all_feeding_metrics( all_exp_dict):
     """ Calculate metrics for feeding, specifically
         Baseline firing rate for hungry vs fed
@@ -62,25 +63,25 @@ def calc_all_feeding_metrics( all_exp_dict):
         all_exp is a dictionary of experiments
         This can be found in the iPython notebook for these analyses in the python 2.7 folder
     """
-                    
+    
     hungry_rates, fed_rates = calc_hungry_vs_fed(all_exp_dict, feeding_cells, CCK_cells)
     pre_cck, post_cck, cck_pvalue = calc_cck_changes(all_exp_dict, CCK_cells)
-    non_eat_rates, eat_rates = calc_feed_change_all(all_exp_dict, feeding_cells)
-    non_ensure, ensure = calc_feed_change_all(all_exp_dict, ensure_cells)
+    non_eat_rates, eat_rates, water_rates, feed_pvalue, water_pvalue = calc_feed_change_all(all_exp_dict, feeding_cells)
+    non_ensure, ensure, _, __, ___ = calc_feed_change_all(all_exp_dict, ensure_cells)
     
-    return hungry_rates, fed_rates, pre_cck, post_cck, cck_pvalue, non_eat_rates, eat_rates, non_ensure, ensure
-    
+    return hungry_rates, fed_rates, pre_cck, post_cck, cck_pvalue, non_eat_rates, eat_rates, water_rates, feed_pvalue, water_pvalue, non_ensure, ensure
+
 def calc_other_feeding_metrics(all_exp_dict):
     """ Same as calc_all_feeding_metrics, except for non phototagged cells
     """
     
     hungry_rates, fed_rates = calc_hungry_vs_fed(all_exp_dict, feeding_other_cells, CCK_other_cells)
     pre_cck, post_cck, cck_pvalue = calc_cck_changes(all_exp_dict, CCK_other_cells)
-    non_eat_rates, eat_rates = calc_feed_change_all(all_exp_dict, feeding_other_cells)
-    non_ensure, ensure = calc_feed_change_all(all_exp_dict, ensure_other_cells)
+    non_eat_rates, eat_rates, water_rates, feed_pvalue, water_pvalue = calc_feed_change_all(all_exp_dict, feeding_other_cells)
+    non_ensure, ensure, _, __, ___ = calc_feed_change_all(all_exp_dict, ensure_other_cells)
     
-    return hungry_rates, fed_rates, pre_cck, post_cck, cck_pvalue, non_eat_rates, eat_rates, non_ensure, ensure
-    
+    return hungry_rates, fed_rates, pre_cck, post_cck, cck_pvalue, non_eat_rates, eat_rates, water_rates, feed_pvalue, water_pvalue, non_ensure, ensure
+
 def calc_hungry_vs_fed(all_exp_dict, hungry_cells, fed_cells):
     """ Calculate the firing rate for paired locations when mice are hungry vs fed. By "paired locations"
         I mean that I will only do a single comparison for each time the drive moves.
@@ -148,8 +149,12 @@ def calc_feed_changes_wrapper(all_exp_dict, cell_info):
     cell_id = cell_info[1]
     
     feed_times, water_times, bed_times = cp.parse_feedtimes_csv( cell_info[0] + ' feeding')
-    avg_nonfeed_rate, avg_feed_rate =  calc_feed_changes(cur_exp['spike_times'][cell_id], feed_times, [600, 3600])  
-    return avg_nonfeed_rate[0], avg_feed_rate[0]
+    avg_nonfeed_rate, avg_feed_rate, feed_pvalue =  calc_feed_changes(cur_exp['spike_times'][cell_id], feed_times, [600, 3600])
+    avg_water_rate = [-1]
+    water_pvalue = 1
+    if len(water_times) > 0:
+        _, avg_water_rate, water_pvalue =  calc_feed_changes(cur_exp['spike_times'][cell_id], water_times, [600, 3600])  
+    return avg_nonfeed_rate[0], avg_feed_rate[0], avg_water_rate[0], feed_pvalue, water_pvalue
 
 def calc_feed_changes(spike_times, feed_times, time_range ):
     """ spike_times is one neuron's spike times
@@ -166,8 +171,16 @@ def calc_feed_changes(spike_times, feed_times, time_range ):
 
     avg_feed_rate = calc_fire_rate_epoch(spike_times, feed_times)
     avg_nonfeed_rate = calc_fire_rate_epoch(spike_times, nonfeed_times)
-           
-    return avg_nonfeed_rate, avg_feed_rate
+    
+    # calculate p-value, based on multiple eating bouts
+    pre_counts = [] # should initialize, but eh
+    post_counts = []
+    for cur_time in list(zip(*feed_times)[0]):
+        pre_counts.append( np.count_nonzero(window_spike_times(spike_times, cur_time-10, cur_time)) )
+        post_counts.append( np.count_nonzero(window_spike_times(spike_times, cur_time, cur_time+10)) )
+    feed_pvalue = stats.ttest_ind(pre_counts, post_counts)[1]
+
+    return avg_nonfeed_rate, avg_feed_rate, feed_pvalue
     
 def c_test(mu1, mu2, n1, n2):
     """ Poisson conditional test: test whether mean firing rate is different
@@ -180,3 +193,6 @@ def c_test(mu1, mu2, n1, n2):
         mu2 = 0.001
     
     return ( n1 / n2) * (mu1 / mu2) / (1 + (n1 / n2) * (mu1 / mu2))
+    
+def window_spike_times(timelist, lowbound, upbound):
+    return timelist[(timelist >lowbound) & (timelist < upbound)]
