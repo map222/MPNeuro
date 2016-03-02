@@ -119,7 +119,8 @@ def calc_fire_rate_epoch(spike_times, epoch_times):
     total_time = 0
 
     for time_pairs in epoch_times:
-        total_spikes += np.size( spike_times[(spike_times > time_pairs[0] ) & (spike_times < time_pairs[1] ) ])
+        #pdb.set_trace()
+        total_spikes += np.sum( (spike_times > time_pairs[0] ) * (spike_times < time_pairs[1] ) )
         total_time   += time_pairs[1] - time_pairs[0]
     return [total_spikes / total_time, total_time]
 
@@ -185,7 +186,9 @@ def calc_feed_changes(spike_times, feed_times, time_range ):
 def c_test(mu1, mu2, n1, n2):
     """ Poisson conditional test: test whether mean firing rate is different
     
-    Arguments: spikes1 and spikes2 are lists of binned spikes
+    Arguments: 
+    mu1 and mu2: the firing rates for first and second condition
+    n1 and n2: total time covered by mu1 and mu2 in seconds
     """
     if mu1 ==0:
         mu1 = 0.001

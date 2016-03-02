@@ -1,0 +1,44 @@
+# Installation:
+This gui requires installation of 3 programs (on Windows): exiftool, ImageMagick, and the exiftool repository for windows.
+
+## Exiftool
+Exiftool is the program that gets the data from the header of the JPEGs. To install exiftool for windows, download the "Windows Executable" from:
+http://www.sno.phy.queensu.ca/~phil/exiftool/
+Unzip it. Put the exiftool.exe in the directory where you will analyze your images. If you know how to, you should be able to add exiftool to your PATH. If not, exiftool.exe must be present in all directories with your images
+
+## ImageMagick
+ImageMagick is used to convert the files to the appropriate format. To install it, download the windows binary from:
+http://www.imagemagick.org/script/binary-releases.php
+Everything should be ready to run after installing it
+
+### Exiftool for python
+The mouse_tail_gui.py script needs to call Exiftool from inside the script, so we need to install a wrapper for exiftool. To do that, download the "tarball" from here:
+https://github.com/smarnach/pyexiftool/tarball/master
+Then unzip / extract the files until you get a smarnach*** folder. Open a command prompt in that folder, and install exiftool by typing:
+python setup.py install
+
+# Using the GUI
+The GUI works in 3 steps. First, we need to extract the imaging data from the header of the .jpg, and put it into a new .png. To do this for one file, we could enter:
+
+exiftool FLIR0475.jpg -b -RawThermalImage > FLIR0475.png
+
+To do this for all the files in a directory, enter:
+
+exiftool -b -RawThermalImage FLIR*.jpg -w %f.png
+
+Next, due to an artifact of how integers are represented in the image, we need to modify the .png using Imagemagick. To do this for one file, we can try:
+
+convert FLIR0475.png gray:- | convert -depth 16 -endian msb -size 80x60 gray:- FLIR0475.png
+
+To do this for all the files in a directory, in Linux, enter:
+
+for i in *.png ; do convert "$i" gray:- | convert -depth 16 -endian msb -size 80x60 gray:- "$i" ; done
+
+To do the same for all the files in a directory in Windows, enter:
+
+for %f in (*.png) do convert "%f" gray:- | convert -depth 16 -endian msb -size 80x60 gray:- "%f"
+
+At this point you should have a directory full of .jpgs, and .pngs that look very grey. To start the gui, simply type:
+python mouse_tail_gui.py
+
+To get the temperature at point, simply click the left mouse button. This will print the temperature on the screen. To move to the next image, hit space. To stop analyzing images, hit 'q'. When the program closes, it will save all of the temperatures to "tail temps.csv"
