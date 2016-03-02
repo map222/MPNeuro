@@ -11,7 +11,7 @@ ImageMagick is used to convert the files to the appropriate format. To install i
 http://www.imagemagick.org/script/binary-releases.php
 Everything should be ready to run after installing it
 
-### Exiftool for python
+## Exiftool for python
 The mouse_tail_gui.py script needs to call Exiftool from inside the script, so we need to install a wrapper for exiftool. To do that, download the "tarball" from here:
 https://github.com/smarnach/pyexiftool/tarball/master
 Then unzip / extract the files until you get a smarnach*** folder. Open a command prompt in that folder, and install exiftool by typing:
