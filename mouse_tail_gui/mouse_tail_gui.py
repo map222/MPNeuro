@@ -119,5 +119,5 @@ if __name__ == "__main__":
         if cur_mouse.quit:
             break
 
-    img_df = pd.DataFrame(img_temps)
+    img_df = pd.DataFrame(img_temps, columns = ['Image', 'Temperature'])
     img_df.to_csv('tail temps.csv')
