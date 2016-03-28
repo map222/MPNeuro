@@ -21,10 +21,26 @@ def load_jpg( basename = 'FLIR0288'):
     jpg2 = enhancer.enhance(2.0)
     tkjpg = ImageTk.PhotoImage( jpg2)
 
-    png = sm.imread(basename + '.png')
     return tkjpg
 
-def load_temp_png(basename = 'FLIR0288'):
+def make_png(basename = 'FLIR0288'):
+    et = exiftool.ExifTool()
+    et.start()
+    
+    # convert jpeg to png
+    cur_jpeg = basename + '.jpg'
+    byte_image = et.execute( b'-b', b'-RawThermalImage', cur_jpeg.encode('utf-8'))
+    with open(cur_jpeg[:-4] + '.png', 'wb') as png_file:
+        png_file.write(byte_image)
+        
+    # swap endian
+    png_image = sm.imread(basename + '.png')
+    png_image = png_image.astype('int16')
+    png_image.byteswap('<')
+    sm.imsave(basename + '.png', png_image)
+    return png_image
+
+def make_temp_image(basename, png):
     # load exif data
     with exiftool.ExifTool() as et:
         metadata = et.get_metadata(basename + '.jpg')
@@ -33,10 +49,6 @@ def load_temp_png(basename = 'FLIR0288'):
     planck_b = metadata[u'APP1:PlanckB']
     planck_o = metadata[u'APP1:PlanckO']
     planck_f = metadata[u'APP1:PlanckF']
-
-    # load png made previously by exiftool
-    with open(basename + '.png', 'rb') as png_file:
-        png = sm.imread( png_file)
 
     # sometimes there are 0 values in a row; fix them by setting to min
     if png.min() < -planck_o: # problem with png file
@@ -80,8 +92,8 @@ class MouseGUI(tk.Frame):
         #outputting x and y coords to console
         x = math.floor(event.x / 8)
         y = math.floor(event.y / 8)
-        print( (flir_file, x,y, png[y][x ] ) )
-        img_temps.append([flir_file, png[y][x ] ])
+        print( (flir_file, x,y, temp_image[y][x ] ) )
+        img_temps.append([flir_file, temp_image[y][x ] ])
 
     def quit_window(self,event):
         self.quit = True
@@ -93,12 +105,15 @@ class MouseGUI(tk.Frame):
 if __name__ == "__main__":
 
     all_files = os.listdir('.')
+    
+    assert 'exiftool.exe' in all_files, 'exiftool.exe must be in the directory'
     jpegs = [x[:-4] for x in all_files if x[-4:] == '.jpg']
     img_temps = []
     for flir_file in jpegs:
         root = tk.Tk()
         tk_jpg = load_jpg(flir_file)
-        png = load_temp_png(flir_file)
+        temp_image = make_png(flir_file)
+        temp_image = make_temp_image(flir_file, temp_image) # png is in global namespace, and used by MouseGUI object
         cur_mouse = MouseGUI(root, tk_jpg)
         root.mainloop()
         if cur_mouse.quit:

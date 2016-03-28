@@ -17,7 +17,16 @@ https://github.com/smarnach/pyexiftool/tarball/master
 Then unzip / extract the files until you get a smarnach*** folder. Open a command prompt in that folder, and install exiftool by typing:
 python setup.py install
 
+## Conflicts with Image or Pillow
+When I was installing everything, I ran into some problems with dependency conflicts. If you run into these problems, please contact me.
+
 # Using the GUI
+To use the GUI, open the command prompt in a directory with all of the .jpegs of interest, and exiftool.exe. Then run:
+python mouse_tail_gui.py
+
+To get the temperature at point, simply click the left mouse button. This will print the temperature on the screen. To move to the next image, hit space. To stop analyzing images, hit 'q'. When the program closes, it will save all of the temperatures to "tail temps.csv"
+
+## Old version of the GUI
 The GUI works in 3 steps. First, we need to extract the imaging data from the header of the .jpg, and put it into a new .png. To do this for one file, we could enter:
 
 exiftool FLIR0475.jpg -b -RawThermalImage > FLIR0475.png
@@ -40,5 +49,3 @@ for %f in (*.png) do convert "%f" gray:- | convert -depth 16 -endian msb -size 8
 
 At this point you should have a directory full of .jpgs, and .pngs that look very grey. To start the gui, simply type:
 python mouse_tail_gui.py
-
-To get the temperature at point, simply click the left mouse button. This will print the temperature on the screen. To move to the next image, hit space. To stop analyzing images, hit 'q'. When the program closes, it will save all of the temperatures to "tail temps.csv"
