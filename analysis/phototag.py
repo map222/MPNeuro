@@ -9,7 +9,7 @@ A class and functions to calculate the latency, jitter, and other metrics of spi
 
 
 from __future__ import division
-import MPNeuro.nlxio.helper_functions as hf
+import MPNeuro.nlxio.load_experiment as le
 import pdb
 import numpy as np
 import matplotlib.pyplot as plt
@@ -88,9 +88,9 @@ class PhototagData:
     def load_data(self, cell_list):
         
         self.cell_info = cell_list
-        reload(hf)
+        reload(le)
         for row in cell_list: # go through each cell
-            cur_exp = hf.load_analyzed_exp(row[0])
+            cur_exp = le.load_analyzed_exp(row[0])
             if np.size(cur_exp['spike_times']) >1:
                 self.spike_times.append( cur_exp['spike_times'][row[1]] ) # get spike times for given cell
             else: # for single cell files, just append the single cell
@@ -323,7 +323,7 @@ def calc_pearson_tag_spont(cell_info, plot_flag = False):
     [3]: end of phototag stim
     """
     #pdb.set_trace()
-    cur_exp = hf.load_analyzed_exp(cell_info[0], False)
+    cur_exp = le.load_analyzed_exp(cell_info[0], False)
     cell_id = cell_info[1]
     laser_times = cur_exp['laser_times'][cell_info[2]:cell_info[3]]
     

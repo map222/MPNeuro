@@ -11,8 +11,8 @@ Created on Sat Jan 17 17:56:55 2015
 c:\pyuic4.bat BioDAQGUI.ui -o BioDAQGUI.py
 
 # to compile the .py file into an .exe, run the following in the directory below with the .py file
-(C:\users\palmiteradmin\documents\github\mpneuro\biodaq):
-C:\Users\palmiteradmin\Desktop\WinPython-64bit-2.7.6.3\python-2.7.6.amd64\Scripts\pyinstaller.exe BioDAQmain.py -w
+(C:\ users\palmiteradmin\documents\github\mpneuro\biodaq):
+C:\ users\palmiteradmin\Desktop\WinPython-64bit-2.7.6.3\python-2.7.6.amd64\Scripts\pyinstaller.exe BioDAQmain.py -w
 """
 
 from __future__ import division
@@ -101,12 +101,12 @@ class StartQT4(QtGui.QMainWindow):
             return []
             
         cur_cage = self.ui.StartCageBox.value()
-        cur_data = cur_data.query('n_cage == cur_cage')
+        cur_data = cur_data.query('n_cage == @cur_cage')
     
         # filter out bad data
         min_change = self.ui.BoutMinBox.value()
         max_change = self.ui.BoutMaxBox.value()
-        cur_data = cur_data.query('g_change >= min_change & g_change <= max_change')
+        cur_data = cur_data.query('g_change >= @min_change & g_change <= @max_change')
         return cur_data
 
     def create_empty_frame(self, empty_value = 0, start_bool = True):
@@ -236,6 +236,7 @@ class StartQT4(QtGui.QMainWindow):
         self.calc_bout_info()
        
         # save the data to the csv
+        self.analyzed_data.fillna(0, inplace=True)
         self.analyzed_data.to_csv(self.expname + '.csv', mode='a') # append so it still writes if file there
         QtGui.QMessageBox.about(self, 'Csv saved!', "Csv saved to: " + self.expname + '.csv')
         
