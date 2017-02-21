@@ -4,7 +4,7 @@ MPNeuro
 Python modules that I use to analyze data
 Written by Michael Patterson
 Palmiter lab
-2014-now
+2014-2016
 
 nlxio directory includes modules for reading from following filetypes: (adapted from bwillers/nlxio)
 *  .ncs continous sample files
